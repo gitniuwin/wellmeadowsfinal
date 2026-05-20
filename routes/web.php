@@ -1,5 +1,5 @@
 <?php
-
+use App\Http\Controllers\WardController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
@@ -37,5 +37,19 @@ Route::middleware('auth')->group(function () {
         Route::delete('/staff/{id}',               [StaffController::class, 'destroy'])->name('staff.destroy');
         Route::put('/staff/{id}/schedule',         [StaffController::class, 'updateSchedule'])->name('staff.schedule');
         Route::put('/staff/{id}/responsibilities', [StaffController::class, 'updateResponsibilities'])->name('staff.responsibilities');
+    });
+
+// Module 3 — Ward & Bed Management
+    Route::prefix('wards')->name('wards.')->group(function () {
+        Route::get('/',             [WardController::class, 'index'])         ->name('index');
+        Route::get('/create',       [WardController::class, 'create'])        ->name('create');
+        Route::post('/',            [WardController::class, 'store'])         ->name('store');
+        Route::get('/{ward}',       [WardController::class, 'show'])          ->name('show');
+        Route::get('/{ward}/edit',  [WardController::class, 'edit'])          ->name('edit');
+        Route::put('/{ward}',       [WardController::class, 'update'])        ->name('update');
+        Route::delete('/{ward}',    [WardController::class, 'destroy'])       ->name('destroy');
+        Route::post('/beds/assign',         [WardController::class, 'assignBed'])      ->name('beds.assign');
+        Route::patch('/beds/{bed}/release', [WardController::class, 'releaseBed'])     ->name('beds.release');
+        Route::patch('/beds/{bed}/status',  [WardController::class, 'updateBedStatus'])->name('beds.status');
     });
 });

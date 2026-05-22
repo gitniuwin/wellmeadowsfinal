@@ -32,3 +32,6 @@ class Bed extends Model
         return $this->status === 'vacant';
     }
 }
+
+
+//comment ni dorothy//

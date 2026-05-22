@@ -8,22 +8,22 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('staff', function (Blueprint $table) {
             $table->id();
             $table->string('first_name');
             $table->string('last_name');
-            $table->string('email')->unique();
-            $table->string('password');
-            $table->string('role'); // Medical Director, Charge Nurse, Personnel/HR Staff
+            $table->string('role');
             $table->string('department')->nullable();
-            $table->string('status')->default('Active'); // Active, Pending, Inactive
-            $table->rememberToken();
+            $table->string('ward')->nullable();
+            $table->string('shift')->nullable();
+            $table->string('email')->unique();
+            $table->string('status')->default('Active');
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('staff');
     }
 };

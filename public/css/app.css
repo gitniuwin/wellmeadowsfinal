@@ -621,3 +621,60 @@ a { text-decoration: none; color: inherit; }
     .sidebar { display: none; }
     .stat-grid { grid-template-columns: 1fr 1fr; }
 }
+
+/* ── MODULE 5: BILLING & REPORTING ── */
+.tab-bar { display:flex; border-bottom:1.5px solid var(--border,#C8D9EE); margin-bottom:20px; }
+.tab { padding:10px 18px; font-size:13px; font-weight:500; color:var(--muted,#6B7E9F); cursor:pointer; border-bottom:2.5px solid transparent; margin-bottom:-1.5px; transition:all 0.15s; text-decoration:none; }
+.tab:hover { color:var(--navy,#1B2D5B); }
+.tab.active { color:var(--navy,#1B2D5B); border-bottom-color:var(--navy,#1B2D5B); }
+
+.stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:24px; }
+.stat-card { background:var(--navy,#1B2D5B); border-radius:12px; padding:18px 20px; color:white; }
+.stat-card.sky  { background:#0e7490; }
+.stat-card.teal { background:#1d6a4a; }
+.stat-card.light { background:white; border:1px solid var(--border,#C8D9EE); color:var(--text,#1a2640); }
+.stat-label { font-size:11px; text-transform:uppercase; letter-spacing:1px; opacity:0.65; margin-bottom:8px; }
+.stat-card.light .stat-label { opacity:1; color:var(--muted,#6B7E9F); }
+.stat-value { font-size:28px; font-weight:700; line-height:1; }
+.stat-sub { font-size:11px; opacity:0.55; margin-top:4px; }
+.stat-sub.green { color:#4ade80; opacity:1; }
+.stat-sub.red   { color:#f87171; opacity:1; }
+.stat-card.light .stat-sub { color:var(--muted,#6B7E9F); opacity:1; }
+
+.table-card { background:white; border:1px solid var(--border,#C8D9EE); border-radius:12px; overflow:hidden; margin-bottom:20px; }
+.table-header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--border,#C8D9EE); }
+.table-title { font-size:14px; font-weight:500; }
+.view-all-link { font-size:12px; color:var(--sky,#5B9BD5); text-decoration:none; }
+.view-all-link:hover { text-decoration:underline; }
+
+.activity-row { display:flex; align-items:center; justify-content:space-between; padding:12px 20px; border-bottom:1px solid rgba(200,217,238,0.4); }
+.activity-row:last-child { border-bottom:none; }
+.activity-name { font-size:13px; font-weight:500; }
+.activity-sub  { font-size:11px; color:var(--muted,#6B7E9F); margin-top:2px; }
+.activity-amount { font-size:13px; font-weight:600; }
+
+.badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:500; }
+.badge-paid    { background:#E3F7EF; color:#1B7A54; }
+.badge-pending { background:#FFF4DC; color:#C88000; }
+.badge-overdue { background:#FFF0F0; color:#D94F4F; }
+
+.service-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:500; background:#D6EAFA; color:#1B4FA8; }
+
+.add-btn { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; background:var(--navy,#1B2D5B); color:white; border:none; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; text-decoration:none; }
+.add-btn:hover { background:var(--navy-light,#2a4080); }
+
+.form-card { background:white; border:1px solid var(--border,#C8D9EE); border-radius:12px; padding:28px; max-width:540px; }
+.form-group { margin-bottom:18px; }
+.form-label { display:block; font-size:12px; font-weight:500; color:var(--muted,#6B7E9F); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px; }
+.form-input { width:100%; border:1.5px solid var(--border,#C8D9EE); border-radius:8px; padding:9px 14px; font-size:13px; color:var(--text,#1a2640); background:var(--off-white,#F4F8FC); outline:none; }
+.form-input:focus { border-color:var(--sky,#5B9BD5); background:white; }
+.form-actions { display:flex; gap:10px; margin-top:24px; }
+.btn-primary { padding:9px 20px; background:var(--navy,#1B2D5B); color:white; border:none; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; }
+.btn-secondary { padding:9px 20px; background:white; color:var(--muted,#6B7E9F); border:1.5px solid var(--border,#C8D9EE); border-radius:8px; font-size:13px; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; }
+
+.action-btn { padding:4px 10px; border-radius:6px; border:1px solid var(--border,#C8D9EE); background:white; font-size:11px; color:var(--navy,#1B2D5B); cursor:pointer; font-weight:500; text-decoration:none; display:inline-block; }
+.action-btn:hover { background:var(--sky-pale,#D6EAFA); }
+.action-btn.del { color:#D94F4F; border-color:#f5c5c5; }
+.action-btn.del:hover { background:#FFF0F0; }
+
+.empty-state { padding:40px 20px; text-align:center; color:var(--muted,#6B7E9F); font-size:13px; }

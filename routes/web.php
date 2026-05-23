@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\StaffController;
+use App\Http\Controllers\BillingController;
 
 // Redirect root to login
 Route::get('/', function () {
@@ -39,7 +40,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/staff/{id}/responsibilities', [StaffController::class, 'updateResponsibilities'])->name('staff.responsibilities');
     });
 
-// Module 3 — Ward & Bed Management
+    // Module 3 — Ward & Bed Management
     Route::prefix('wards')->name('wards.')->group(function () {
         Route::get('/',             [WardController::class, 'index'])         ->name('index');
         Route::get('/create',       [WardController::class, 'create'])        ->name('create');
@@ -52,4 +53,15 @@ Route::middleware('auth')->group(function () {
         Route::patch('/beds/{bed}/release', [WardController::class, 'releaseBed'])     ->name('beds.release');
         Route::patch('/beds/{bed}/status',  [WardController::class, 'updateBedStatus'])->name('beds.status');
     });
+    
+    // Module 5 — Billing & Reporting  ← ADD THIS BLOCK
+        Route::get('/billing',         [BillingController::class, 'index'])->name('billing.index');
+        Route::get('/billing/all',     [BillingController::class, 'allBills']);
+        Route::get('/billing/create',  [BillingController::class, 'create']);
+        Route::post('/billing',        [BillingController::class, 'store']);
+        Route::delete('/billing/{id}', [BillingController::class, 'destroy']);
+        Route::get('/payments',        [BillingController::class, 'payments']);
+        Route::post('/payments',       [BillingController::class, 'recordPayment']);
+        Route::get('/outstanding',     [BillingController::class, 'outstanding']);
+        Route::get('/reports',         [BillingController::class, 'reports']);
 });

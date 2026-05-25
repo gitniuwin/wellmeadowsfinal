@@ -14,6 +14,8 @@ class Patient extends Model
         'gender', 'contact_number', 'address', 'is_admitted'
     ];
 
+    protected $appends = ['full_name'];
+
     protected $casts = [
         'date_of_birth' => 'date',
         'is_admitted' => 'boolean',

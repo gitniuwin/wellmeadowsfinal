@@ -19,12 +19,6 @@
     <a href="/reports"       class="tab {{ str_starts_with($path,'report')       ? 'active' : '' }}">Reports</a>
 </div>
 
-@if(session('success'))
-<div style="background:#E3F7EF;border:1px solid #9FE1CB;color:#1B7A54;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;">
-    ✓ {{ session('success') }}
-</div>
-@endif
-
 <div class="stat-grid">
     <div class="stat-card">
         <div class="stat-label">Total Revenue</div>

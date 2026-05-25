@@ -9,7 +9,7 @@ class HistoryController extends Controller
 {
     public function index(Request $request)
     {
-        $patients = Patient::orderBy('name')->get();
+        $patients = Patient::orderBy('first_name')->orderBy('last_name')->get();
         $selectedPatient = null;
         $history = collect();
 

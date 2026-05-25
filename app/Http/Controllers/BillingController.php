@@ -6,6 +6,7 @@ use App\Models\Bill;
 use App\Models\Payment;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class BillingController extends Controller
 {
@@ -35,15 +36,17 @@ class BillingController extends Controller
     public function index(){
     $stats = $this->getStats();
 
+    $dateParts = $this->monthlyDateParts();
+
     $monthly = Bill::selectRaw(
-        "strftime('%m', created_at) as month_num,
-         strftime('%Y', created_at) as year,
+        "{$dateParts['month']} as month_num,
+         {$dateParts['year']} as year,
          COUNT(*) as count,
          SUM(total_amount) as total,
-         SUM(CASE WHEN status='paid' THEN total_amount ELSE 0 END) as collected"
+         SUM(CASE WHEN status = 'paid' THEN total_amount ELSE 0 END) as collected"
     )
-    ->groupByRaw("strftime('%Y', created_at), strftime('%m', created_at)")
-    ->orderByRaw("strftime('%Y', created_at) DESC, strftime('%m', created_at) DESC")
+    ->groupByRaw("{$dateParts['year']}, {$dateParts['month']}")
+    ->orderByRaw("{$dateParts['year']} DESC, {$dateParts['month']} DESC")
     ->get()
     ->map(function($row) {
         $months = [
@@ -59,6 +62,19 @@ class BillingController extends Controller
 
     return view('billing.index', compact('stats', 'monthly', 'recent'));
 }
+
+    private function monthlyDateParts(): array
+    {
+        return DB::connection()->getDriverName() === 'pgsql'
+            ? [
+                'month' => "to_char(created_at, 'MM')",
+                'year' => "to_char(created_at, 'YYYY')",
+            ]
+            : [
+                'month' => "strftime('%m', created_at)",
+                'year' => "strftime('%Y', created_at)",
+            ];
+    }
 
     public function allBills()
     {

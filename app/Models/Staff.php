@@ -14,6 +14,8 @@ class Staff extends Model
         'email', 'phone', 'status'
     ];
 
+    protected $appends = ['full_name', 'initials'];
+
     public function getFullNameAttribute()
     {
         return $this->first_name . ' ' . $this->last_name;

@@ -68,14 +68,14 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                                 </svg>
                             </div>
-                            <p class="font-medium text-navy-dark">{{ $treatment->patient->name }}</p>
+                            <p class="font-medium text-navy-dark">{{ $treatment->patient->full_name }}</p>
                         </div>
                     </td>
                     <td class="px-6 py-4 text-gray-600">{{ $treatment->diagnosis }}</td>
                     <td class="px-6 py-4">
                         <span class="px-2.5 py-1 rounded-lg bg-sky-pale text-navy text-xs font-medium">{{ $treatment->procedure }}</span>
                     </td>
-                    <td class="px-6 py-4 text-gray-600">{{ $treatment->doctor->name }}</td>
+                    <td class="px-6 py-4 text-gray-600">{{ $treatment->doctor->full_name }}</td>
                     <td class="px-6 py-4 text-gray-500 text-xs">{{ \Carbon\Carbon::parse($treatment->treatment_date)->format('M d, Y') }}</td>
                     <td class="px-6 py-4">
                         <div class="flex gap-2">

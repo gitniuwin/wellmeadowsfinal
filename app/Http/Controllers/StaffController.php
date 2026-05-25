@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 use App\Models\Staff;
 use App\Models\Schedule;
 use App\Models\Responsibility;
@@ -69,9 +70,53 @@ class StaffController extends Controller
             'admin'   => Staff::where('role', 'Admin')->count(),
         ];
 
+        $dayMap = ['Mon' => 'mon', 'Tue' => 'tue', 'Wed' => 'wed', 'Thu' => 'thu', 'Fri' => 'fri', 'Sat' => 'sat', 'Sun' => 'sun'];
+        $todayKey = $dayMap[Carbon::now()->format('D')];
+        $timelineTimes = ['07:30 AM', '08:10 AM', '08:45 AM', '09:20 AM', '09:55 AM', '10:30 AM'];
+
+        $flowEvents = $allStaff->filter(function ($s) use ($todayKey) {
+            return optional($s->schedule)->{$todayKey};
+        })->take(6)->values()->map(function ($s, $idx) use ($timelineTimes) {
+            $time = $timelineTimes[$idx] ?? Carbon::now()->subMinutes(10 * $idx)->format('h:i A');
+            $wardLabel = $s->ward ? $s->ward : $s->department;
+            $action = match($s->shift) {
+                'AM' => "Started morning rounds in {$wardLabel}",
+                'PM' => "Taking afternoon coverage in {$wardLabel}",
+                'Night' => "On night watch for {$wardLabel}",
+                default => "Scheduled for {$s->shift} in {$wardLabel}",
+            };
+            return [
+                'time' => $time,
+                'title' => "{$s->full_name} · {$s->role}",
+                'description' => $action,
+                'status' => $s->status,
+                'statusClass' => $s->status === 'Active' ? 'Active' : 'Leave',
+            ];
+        });
+
+        if ($flowEvents->isEmpty()) {
+            $flowEvents = $allStaff->take(4)->map(function ($s, $idx) use ($timelineTimes) {
+                $time = $timelineTimes[$idx] ?? Carbon::now()->subMinutes(10 * $idx)->format('h:i A');
+                $wardLabel = $s->ward ? $s->ward : $s->department;
+                $action = match($s->shift) {
+                    'AM' => "Prepared for morning coverage in {$wardLabel}",
+                    'PM' => "Reviewed afternoon duty roster for {$wardLabel}",
+                    'Night' => "Confirmed night shift assignment for {$wardLabel}",
+                    default => "Confirmed staffing assignment for {$wardLabel}",
+                };
+                return [
+                    'time' => $time,
+                    'title' => "{$s->full_name} · {$s->role}",
+                    'description' => $action,
+                    'status' => $s->status,
+                    'statusClass' => $s->status === 'Active' ? 'Active' : 'Leave',
+                ];
+            });
+        }
+
         return view('staff.index', compact(
             'staff', 'allStaff', 'staffJson',
-            'departments', 'deptSummary', 'counts', 'user'
+            'departments', 'deptSummary', 'counts', 'user', 'flowEvents'
         ));
     }
 
@@ -99,7 +144,7 @@ class StaffController extends Controller
     public function edit($id)
     {
         $staff = Staff::with(['schedule', 'responsibilities'])->findOrFail($id);
-        return response()->json($staff);
+        return view('staff.edit', compact('staff'));
     }
 
     public function update(Request $request, $id)

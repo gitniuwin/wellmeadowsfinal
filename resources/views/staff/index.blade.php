@@ -57,6 +57,19 @@
   .content { padding:24px 28px; flex:1; }
   .stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:24px; }
   .stat-card { background:var(--navy); border-radius:12px; padding:18px 20px; color:white; }
+  .flow-panel { background:white; border:1px solid var(--border); border-radius:16px; padding:22px; margin-bottom:24px; box-shadow:0 10px 40px rgba(29,53,91,.05); }
+  .flow-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  .flow-header h3 { margin:0; font-size:16px; font-weight:600; color:var(--text); }
+  .flow-header span { font-size:12px; color:var(--muted); }
+  .flow-timeline { display:flex; flex-direction:column; gap:16px; }
+  .flow-item { display:grid; grid-template-columns:92px 1fr; gap:14px; align-items:start; }
+  .flow-time { font-size:13px; color:var(--sky); font-weight:700; }
+  .flow-content { padding:16px 18px; border-radius:14px; background:var(--off-white); }
+  .flow-title { font-size:14px; font-weight:600; margin-bottom:6px; }
+  .flow-desc { font-size:13px; color:var(--muted); line-height:1.5; }
+  .flow-badge { margin-top:8px; display:inline-flex; padding:4px 10px; border-radius:999px; font-size:11px; font-weight:700; letter-spacing:0.02em; }
+  .flow-badge.Active { background:#E3F7EF; color:#1B7A54; }
+  .flow-badge.Leave { background:#FFF3E0; color:#A06000; }
   .stat-card.light { background:white; border:1px solid var(--border); color:var(--text); }
   .stat-label { font-size:11px; text-transform:uppercase; letter-spacing:1px; opacity:0.65; margin-bottom:8px; }
   .stat-value { font-family:'Playfair Display',serif; font-size:30px; line-height:1; }
@@ -176,9 +189,6 @@
 <div style="padding:28px;">
 
     {{-- Flash Messages --}}
-    @if(session('success'))
-      <div class="flash success">{{ session('success') }}</div>
-    @endif
     @if($errors->any())
       <div class="flash error">{{ $errors->first() }}</div>
     @endif
@@ -204,6 +214,25 @@
         <div class="stat-label">Admin Staff</div>
         <div class="stat-value">{{ $counts['admin'] }}</div>
         <div class="stat-sub">Front desk & records</div>
+      </div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-header">
+        <h3>Live staff flow</h3>
+        <span>Real-world assignments and shift activity</span>
+      </div>
+      <div class="flow-timeline">
+        @foreach($flowEvents as $event)
+        <div class="flow-item">
+          <div class="flow-time">{{ $event['time'] }}</div>
+          <div class="flow-content">
+            <div class="flow-title">{{ $event['title'] }}</div>
+            <div class="flow-desc">{{ $event['description'] }}</div>
+            <div class="flow-badge {{ $event['statusClass'] }}">{{ $event['status'] }}</div>
+          </div>
+        </div>
+        @endforeach
       </div>
     </div>
 
@@ -260,12 +289,12 @@
               </td>
               <td>
                 <div style="display:flex;gap:6px">
-                  @if(auth()->user()->role !== 'Charge Nurse')
+                  @if(auth()->user()->role === 'Medical Director' || auth()->user()->role === 'Personnel/HR Staff')
                   <button class="action-btn" onclick="openEditModal({{ $s->id }})">Edit</button>
                   @endif
                   <button class="action-btn" onclick="openViewModal({{ $s->id }})">View</button>
-                  @if(auth()->user()->role !== 'Charge Nurse')
-                  <button class="action-btn del" onclick="openDeleteModal({{ $s->id }}, '{{ $s->full_name }}')">Remove</button>
+                  @if(auth()->user()->role === 'Medical Director' || auth()->user()->role === 'Personnel/HR Staff')
+                  <button class="action-btn del" onclick="openDeleteModal({{ $s->id }}, @js($s->full_name))">Remove</button>
                   @endif
                 </div>
               </td>
@@ -334,7 +363,7 @@
             @endforeach
           </div>
           @if(auth()->user()->role !== 'Charge Nurse')
-          <button class="action-btn" onclick="openScheduleModal({{ $s->id }}, '{{ $s->full_name }}', '{{ $s->shift }}', {{ json_encode($sched) }})">Edit</button>
+          <button class="action-btn" onclick="openScheduleModal({{ $s->id }}, @js($s->full_name), @js($s->shift), @js($sched))">Edit</button>
           @endif
         </div>
         @endforeach
@@ -353,7 +382,7 @@
             <div style="font-size:11px;color:var(--muted)">{{ $s->role }} · {{ $s->department }}</div>
           </div>
           @if(auth()->user()->role !== 'Charge Nurse')
-          <button class="action-btn" style="margin-left:auto;font-size:12px" onclick="openRespModal({{ $s->id }}, '{{ $s->full_name }}', {{ json_encode($s->responsibilities->pluck('description')) }})">Edit Responsibilities</button>
+          <button class="action-btn" style="margin-left:auto;font-size:12px" onclick="openRespModal({{ $s->id }}, @js($s->full_name), @js($s->responsibilities->pluck('description')->values()))">Edit Responsibilities</button>
           @endif
         </div>
         <ul class="resp-list">
@@ -666,10 +695,18 @@
     const container = document.getElementById('resp-inputs');
     const row = document.createElement('div');
     row.className = 'resp-input-row';
-    row.innerHTML = `
-      <input type="text" name="responsibilities[]" value="${value}" placeholder="Enter responsibility…">
-      <button type="button" class="remove-resp" onclick="this.parentElement.remove()">✕</button>
-    `;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.name = 'responsibilities[]';
+    input.value = value;
+    input.placeholder = 'Enter responsibility...';
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'remove-resp';
+    button.textContent = 'x';
+    button.addEventListener('click', () => row.remove());
+    row.append(input, button);
     container.appendChild(row);
   }
+</script>
 @endpush

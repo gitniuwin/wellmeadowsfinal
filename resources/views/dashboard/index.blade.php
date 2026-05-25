@@ -158,13 +158,13 @@
       <div class="module-icon" style="background:#E3F7FA">
         <svg viewBox="0 0 24 24" stroke="#0E8FAB"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       </div>
-      <div class="module-name">Patient Management</div>
-      <div class="module-desc">Register patients, manage records, assign wards and track admissions.</div>
+      <div class="module-name">Patient Management Module</div>
+      <div class="module-desc">Register and update patient information, maintain medical records, assign patients to wards and beds, and track admission and discharge details.</div>
       <div class="module-tasks">
-        <div class="module-task">Register & update patient info</div>
-        <div class="module-task">Maintain medical records</div>
-        <div class="module-task">Assign to wards & beds</div>
-        <div class="module-task">Track admission & discharge</div>
+        <div class="module-task">Register and update patient information</div>
+        <div class="module-task">Maintain patient medical records</div>
+        <div class="module-task">Assign patients to wards and beds</div>
+        <div class="module-task">Track patient admission and discharge details</div>
       </div>
       <div class="module-arrow">Go to Module <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
     </a>

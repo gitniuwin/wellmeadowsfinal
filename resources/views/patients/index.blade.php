@@ -2,10 +2,12 @@
 @section('page-title', 'Patient Management')
 
 @section('topbar-action')
+  @if(auth()->user()->role === 'Medical Director')
   <button class="add-btn" onclick="openModal('addModal')">
     <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     Register Patient
   </button>
+  @endif
 @endsection
 
 @push('styles')
@@ -64,7 +66,9 @@
   .btn-discharge:hover { background:#fff8e6; }
   .btn-delete { border-color:var(--error); color:var(--error); background:transparent; }
   .btn-delete:hover { background:#fdf0f0; }
-  .actions-cell { display:flex; gap:6px; flex-wrap:wrap; }
+  .actions-cell { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+  .actions-cell form { display:inline-flex; margin:0; }
+  .actions-cell button { font-family:'DM Sans',sans-serif; line-height:1; }
 
   /* ADD BUTTON */
   .add-btn { display:flex; align-items:center; gap:6px; padding:8px 16px; background:var(--navy); color:white; border:none; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; cursor:pointer; transition:background 0.15s; text-decoration:none; }
@@ -82,9 +86,42 @@
   .alert-error   { background:#fdf0f0; color:#a03030; border:1px solid #f5c0c0; }
 
   /* PAGINATION */
-  .pagination { padding:16px 20px; display:flex; justify-content:flex-end; gap:6px; border-top:1px solid var(--border); }
-  .pagination a, .pagination span { padding:6px 12px; border-radius:6px; font-size:12px; border:1px solid var(--border); color:var(--navy); text-decoration:none; }
-  .pagination .active span { background:var(--navy); color:white; border-color:var(--navy); }
+  .pagination { padding:12px 16px; border-top:1px solid var(--border); }
+  .pagination nav { display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%; }
+  .pagination .flex { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .pagination p { margin:0; font-size:12px; color:var(--muted); }
+  .pagination a,
+  .pagination span {
+    min-width:34px;
+    min-height:34px;
+    padding:7px 10px;
+    border-radius:7px;
+    font-size:12px;
+    line-height:1;
+    border:1px solid var(--border);
+    color:var(--navy);
+    background:white;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .pagination span[aria-current="page"] span,
+  .pagination .active span {
+    background:var(--navy);
+    color:white;
+    border-color:var(--navy);
+  }
+  .pagination svg {
+    width:14px !important;
+    height:14px !important;
+    stroke-width:2;
+    display:block;
+  }
+  .pagination [aria-disabled="true"] span {
+    color:#9aa8bc;
+    background:#f7f9fc;
+  }
 
   /* MODAL */
   .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:200; align-items:center; justify-content:center; }
@@ -115,22 +152,26 @@
 
     <!-- Stats -->
     <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-label">Total Patients</div>
-        <div class="stat-value">{{ $totalPatients }}</div>
-        <div class="stat-sub">All registered patients</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Admitted</div>
-        <div class="stat-value" style="color:var(--success)">{{ $admitted }}</div>
-        <div class="stat-sub">Currently in-ward</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Outpatients</div>
-        <div class="stat-value" style="color:var(--warn)">{{ $outpatients }}</div>
-        <div class="stat-sub">Not admitted</div>
-      </div>
-    </div>
+
+  <div class="stat-card" style="background:#1f3266; border-color:#1f3266; color:white;">
+    <div class="stat-label" style="color:rgba(255,255,255,0.48);">Total Patients</div>
+    <div class="stat-value" style="color:white;">{{ $totalPatients }}</div>
+    <div class="stat-sub" style="color:rgba(255,255,255,0.72);">All registered patients</div>
+  </div>
+
+  <div class="stat-card" style="background:#137f94; border-color:#137f94; color:white;">
+    <div class="stat-label" style="color:rgba(255,255,255,0.48);">Admitted</div>
+    <div class="stat-value" style="color:white;">{{ $admitted }}</div>
+    <div class="stat-sub" style="color:rgba(255,255,255,0.72);">Currently in-ward</div>
+  </div>
+
+  <div class="stat-card" style="background:white; border-color:#d5dfec; color:#1f2f46;">
+    <div class="stat-label" style="color:#4e6b9d;">Outpatients</div>
+    <div class="stat-value" style="color:#1f2f46;">{{ $outpatients }}</div>
+    <div class="stat-sub" style="color:#4e6b9d;">Not admitted</div>
+  </div>
+
+</div>
 
     <!-- Filters -->
     <form method="GET" action="{{ route('patients.index') }}" class="filters-bar">
@@ -197,10 +238,7 @@
                   <a href="{{ route('patients.show', $patient) }}" class="action-btn btn-view">View</a>
                   <a href="{{ route('patients.edit', $patient) }}" class="action-btn btn-edit">Edit</a>
                   @if($patient->is_admitted)
-                  <form method="POST" action="{{ route('patients.discharge', $patient) }}" style="display:inline" onsubmit="return confirm('Discharge {{ $patient->full_name }}?')">
-                    @csrf @method('PATCH')
-                    <button type="submit" class="action-btn btn-discharge">Discharge</button>
-                  </form>
+                  <button type="button" class="action-btn btn-discharge" onclick="checkDischarge({{ $patient->id }}, @js($patient->full_name), {{ json_encode($patient->bills->where('status', '!=', 'paid')->map(fn($b) => ['id' => $b->id, 'total' => $b->total_amount, 'paid' => $b->amount_paid, 'remaining' => $b->remaining_balance])->values()) }})">Discharge</button>
                   @endif
                   <form method="POST" action="{{ route('patients.destroy', $patient) }}" style="display:inline" onsubmit="return confirm('Delete this patient record? This cannot be undone.')">
                     @csrf @method('DELETE')
@@ -274,17 +312,96 @@
   </div>
 </div>
 
+<!-- UNPAID BILLS MODAL -->
+<div class="modal-overlay" id="unpaidBillsModal">
+  <div class="modal" style="max-width: 500px;">
+    <div class="modal-title">⚠️ Unpaid Bills</div>
+    <div id="unpaidBillsContent" style="padding: 20px; color: var(--text); font-size: 13px;">
+      <p style="margin-bottom: 16px;"><strong id="patientNameDischarge"></strong> has unpaid bills:</p>
+      <div id="billsList" style="background: var(--off-white); border-radius: 8px; padding: 12px; margin-bottom: 16px; max-height: 200px; overflow-y: auto;">
+      </div>
+      <div style="padding: 12px; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107; margin-bottom: 16px;">
+        <strong>Total Unpaid:</strong> <span id="totalUnpaid" style="color: var(--error); font-weight: 700;"></span>
+      </div>
+      <p style="font-size: 12px; color: var(--muted); margin-bottom: 16px;">Please settle the bills before discharging the patient, or continue at your own risk.</p>
+    </div>
+    <div class="form-actions">
+      <button type="button" class="btn-cancel" onclick="closeModal('unpaidBillsModal')">Cancel Discharge</button>
+      <button type="button" class="btn-submit" onclick="proceedWithDischarge()" style="background: var(--warn); border: none;">Discharge Anyway</button>
+    </div>
+  </div>
+</div>
+
 @endsection
 
 @push('scripts')
 <script>
+  let currentDischargePatientId = null;
+
   function openModal(id)  { document.getElementById(id).classList.add('open'); }
   function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+  
   document.querySelectorAll('.modal-overlay').forEach(m => {
     m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
   });
+  
   @if($errors->any())
     openModal('addModal');
   @endif
+
+  function checkDischarge(patientId, patientName, unpaidBills) {
+    // Filter bills with remaining balance > 0
+    const billsWithBalance = unpaidBills.filter(b => b.remaining > 0);
+    
+    if (billsWithBalance.length === 0) {
+      // No unpaid bills, proceed directly
+      if (confirm('Discharge ' + patientName + '?')) {
+        proceedWithDischargeForPatient(patientId);
+      }
+    } else {
+      // Show unpaid bills modal
+      currentDischargePatientId = patientId;
+      document.getElementById('patientNameDischarge').textContent = patientName;
+      
+      // Calculate total unpaid
+      let totalUnpaid = 0;
+      let billsHTML = '';
+      
+      billsWithBalance.forEach((bill, idx) => {
+        totalUnpaid += bill.remaining;
+        billsHTML += `
+          <div style="padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px;">
+            <div style="display: flex; justify-content: space-between;">
+              <span><strong>Bill ${idx + 1}</strong></span>
+              <span style="color: var(--error); font-weight: 600;">₱${bill.remaining.toFixed(2)}</span>
+            </div>
+            <div style="font-size: 11px; color: var(--muted); margin-top: 4px;">
+              Total: ₱${bill.total.toFixed(2)} | Paid: ₱${bill.paid.toFixed(2)}
+            </div>
+          </div>
+        `;
+      });
+      billsHTML += `<div style="padding: 8px 0;"></div>`;
+      
+      document.getElementById('billsList').innerHTML = billsHTML;
+      document.getElementById('totalUnpaid').textContent = '₱' + totalUnpaid.toFixed(2);
+      
+      openModal('unpaidBillsModal');
+    }
+  }
+
+  function proceedWithDischarge() {
+    proceedWithDischargeForPatient(currentDischargePatientId);
+  }
+
+  function proceedWithDischargeForPatient(patientId) {
+    // Create and submit form
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/patients/' + patientId + '/discharge';
+    form.innerHTML = '<input type="hidden" name="_token" value="' + document.querySelector('meta[name="csrf-token"]').content + '"><input type="hidden" name="_method" value="PATCH">';
+    document.body.appendChild(form);
+    form.submit();
+  }
 </script>
 @endpush

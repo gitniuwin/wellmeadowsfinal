@@ -9,7 +9,6 @@
 @endsection
 
 @section('content')
-{{-- TAB BAR --}}
 @php $path = request()->path(); @endphp
 <div class="tab-bar">
     <a href="/billing"       class="tab {{ $path === 'billing'                   ? 'active' : '' }}">Summary</a>
@@ -18,12 +17,6 @@
     <a href="/outstanding"   class="tab {{ str_starts_with($path,'outstanding')  ? 'active' : '' }}">Outstanding</a>
     <a href="/reports"       class="tab {{ str_starts_with($path,'report')       ? 'active' : '' }}">Reports</a>
 </div>
-
-@if(session('success'))
-<div style="background:#E3F7EF;border:1px solid #9FE1CB;color:#1B7A54;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;">
-    ✓ {{ session('success') }}
-</div>
-@endif
 
 @if($errors->any())
 <div style="background:#FFF0F0;border:1px solid #f5c5c5;color:#B03030;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;">

@@ -101,6 +101,25 @@ class PatientController extends Controller
 
     public function discharge(Patient $patient)
     {
+        // Check for unpaid bills by checking remaining balance
+        $bills = $patient->bills()->get();
+        $totalUnpaid = 0;
+        $unpaidBills = [];
+
+        foreach ($bills as $bill) {
+            if ($bill->remaining_balance > 0) {
+                $totalUnpaid += $bill->remaining_balance;
+                $unpaidBills[] = $bill;
+            }
+        }
+
+        // If there are unpaid bills, redirect back with warning
+        if ($totalUnpaid > 0) {
+            return redirect()->route('patients.show', $patient)
+                ->with('warning', "⚠️ Patient {$patient->full_name} has unpaid bills totaling ₱" . number_format($totalUnpaid, 2) . ". Please settle bills before discharge.");
+        }
+
+        // Release bed if assigned
         if ($patient->bed) {
             $patient->bed->update([
                 'patient_id'  => null,

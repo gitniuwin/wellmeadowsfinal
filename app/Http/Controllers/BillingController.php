@@ -35,25 +35,22 @@ class BillingController extends Controller
     public function index(){
     $stats = $this->getStats();
 
-    $monthly = Bill::selectRaw(
-        "strftime('%m', created_at) as month_num,
-         strftime('%Y', created_at) as year,
-         COUNT(*) as count,
-         SUM(total_amount) as total,
-         SUM(CASE WHEN status='paid' THEN total_amount ELSE 0 END) as collected"
-    )
-    ->groupByRaw("strftime('%Y', created_at), strftime('%m', created_at)")
-    ->orderByRaw("strftime('%Y', created_at) DESC, strftime('%m', created_at) DESC")
-    ->get()
-    ->map(function($row) {
-        $months = [
-            '01'=>'January','02'=>'February','03'=>'March','04'=>'April',
-            '05'=>'May','06'=>'June','07'=>'July','08'=>'August',
-            '09'=>'September','10'=>'October','11'=>'November','12'=>'December'
-        ];
-        $row->month = ($months[$row->month_num] ?? $row->month_num) . ' ' . $row->year;
-        return $row;
-    });
+    $monthly = Bill::latest()
+        ->get()
+        ->groupBy(fn ($bill) => $bill->created_at->format('Y-m'))
+        ->map(function ($bills) {
+            $month = $bills->first()->created_at;
+
+            return (object) [
+                'month_num' => $month->format('m'),
+                'year' => $month->format('Y'),
+                'month' => $month->format('F Y'),
+                'count' => $bills->count(),
+                'total' => $bills->sum('total_amount'),
+                'collected' => $bills->where('status', 'paid')->sum('total_amount'),
+            ];
+        })
+        ->values();
 
     $recent = Bill::with('payments')->latest()->take(5)->get();
 

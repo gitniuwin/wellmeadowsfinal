@@ -1,6 +1,7 @@
 @extends('layouts.app')
+@section('page-title', 'Treatments')
 
-@section('header-actions')
+@section('topbar-action')
 <style>
   .add-btn { display:flex; align-items:center; gap:6px; padding:8px 16px; background:var(--navy); color:white; border:none; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; cursor:pointer; transition:background 0.15s; }
   .add-btn:hover { opacity:0.9; }
@@ -14,6 +15,12 @@
 @endsection
 
 @section('content')
+@if($selectedPatient)
+<div class="mb-5 rounded-xl border border-sky-pale bg-white px-5 py-4 text-sm text-navy-dark">
+    Showing treatments for <strong>{{ $selectedPatient->full_name }}</strong>.
+    <a href="{{ route('treatments.index') }}" class="ml-2 text-sky font-semibold">Show all treatments</a>
+</div>
+@endif
 
 {{-- Summary Cards --}}
 <div class="grid grid-cols-3 gap-5 mb-8">
@@ -40,7 +47,20 @@
 {{-- Treatments Table --}}
 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
     <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-        <h2 class="font-display font-semibold text-navy-dark text-base">Treatment Records</h2>
+        <h2 class="font-display font-semibold text-navy-dark text-base">
+            {{ $selectedPatient ? $selectedPatient->full_name . ' Treatments' : 'Treatment Records' }}
+        </h2>
+        <form method="GET" action="{{ route('treatments.index') }}" class="flex items-center gap-2">
+            <select name="patient_id" class="px-3 py-2 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-navy/20">
+                <option value="">All patients</option>
+                @foreach($patients ?? [] as $patient)
+                    <option value="{{ $patient->id }}" @selected((string) request('patient_id') === (string) $patient->id)>
+                        {{ $patient->full_name }}
+                    </option>
+                @endforeach
+            </select>
+            <button type="submit" class="px-3 py-2 rounded-xl bg-navy text-white text-sm font-semibold">Filter</button>
+        </form>
         <div class="relative">
             <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>

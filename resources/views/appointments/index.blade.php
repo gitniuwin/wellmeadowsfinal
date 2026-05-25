@@ -1,16 +1,15 @@
 @extends('layouts.app')
 @section('page-title', 'Appointments')
-@section('page-title', 'Appointment & Treatment')
 
 @section('topbar-action')
   <button class="add-btn" id="openApptBtn">
     <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     New Appointment
   </button>
-  <a href="{{ route('treatments.create') }}" class="add-btn" style="background:var(--sky); margin-left:8px; text-decoration:none;">
+  <button class="add-btn" id="openTreatBtn" style="background:var(--sky); margin-left:8px;">
     <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     Record Treatment
-  </a>
+  </button>
 @endsection
 
 @push('styles')
@@ -114,16 +113,6 @@
       <div class="stat-value">{{ $totalTreatments ?? 0 }}</div>
       <div class="stat-label">Total Treatments</div>
     </div>
-    <div class="stat-card" style="background:var(--navy-light);">
-      <div class="stat-value">{{ $totalTreatments ?? 0 }}</div>
-      <div class="stat-label">Total Treatments</div>
-    </div>
-  </div>
-
-  {{-- TABS --}}
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('appointments', this)">Appointments</button>
-    <button class="tab-btn" onclick="switchTab('treatments', this)">Treatment Records</button>
   </div>
 
   {{-- TABS --}}
@@ -359,13 +348,16 @@
   }
 
   // Modal controls
-  document.getElementById('openApptBtn').onclick = () => document.getElementById('addApptModal').classList.add('open');
-  document.getElementById('closeApptModal').onclick = () => document.getElementById('addApptModal').classList.remove('open');
-  document.getElementById('cancelApptModal').onclick = () => document.getElementById('addApptModal').classList.remove('open');
+  document.getElementById('openApptBtn')?.addEventListener('click', () => document.getElementById('addApptModal').classList.add('open'));
+  document.getElementById('closeApptModal')?.addEventListener('click', () => document.getElementById('addApptModal').classList.remove('open'));
+  document.getElementById('cancelApptModal')?.addEventListener('click', () => document.getElementById('addApptModal').classList.remove('open'));
 
-  document.getElementById('openTreatBtn').onclick = () => { document.getElementById('addTreatmentModal').classList.add('open'); switchTab('treatments', document.querySelectorAll('.tab-btn')[1]); };
-  document.getElementById('closeTreatModal').onclick = () => document.getElementById('addTreatmentModal').classList.remove('open');
-  document.getElementById('cancelTreatModal').onclick = () => document.getElementById('addTreatmentModal').classList.remove('open');
+  document.getElementById('openTreatBtn')?.addEventListener('click', () => {
+    document.getElementById('addTreatmentModal').classList.add('open');
+    switchTab('treatments', document.querySelectorAll('.tab-btn')[1]);
+  });
+  document.getElementById('closeTreatModal')?.addEventListener('click', () => document.getElementById('addTreatmentModal').classList.remove('open'));
+  document.getElementById('cancelTreatModal')?.addEventListener('click', () => document.getElementById('addTreatmentModal').classList.remove('open'));
 
   // Close on backdrop click
   document.querySelectorAll('.modal-overlay').forEach(m => {

@@ -16,14 +16,14 @@
   .role-hr { background:#FFF3E0; color:#A06000; }
 
   /* HERO BANNER */
-  .hero { position:relative; min-height:260px; overflow:hidden; display:flex; align-items:flex-end; padding:36px 36px 32px; }
+  .hero { position:relative; min-height:180px; overflow:hidden; display:flex; align-items:flex-end; padding:28px 36px 24px; }
   .hero-bg { position:absolute; inset:0; background:url('https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat; }
   .hero-bg::after { content:''; position:absolute; inset:0; background:linear-gradient(90deg, rgba(11,22,55,0.92) 0%, rgba(27,45,91,0.80) 50%, rgba(11,22,55,0.55) 100%); }
   .hero-content { position:relative; z-index:1; display:flex; align-items:flex-end; justify-content:space-between; width:100%; flex-wrap:wrap; gap:16px; }
-  .hero-left h1 { font-family:'Playfair Display',serif; font-size:28px; color:white; margin-bottom:6px; }
+  .hero-left h1 { font-family:'Playfair Display',serif; font-size:24px; color:white; margin-bottom:6px; }
   .hero-left p { font-size:13px; color:rgba(255,255,255,0.6); max-width:460px; line-height:1.6; }
   .hero-clock { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:12px; padding:14px 20px; text-align:center; backdrop-filter:blur(8px); }
-  .hero-clock-time { font-size:32px; font-weight:600; color:white; letter-spacing:1px; line-height:1; }
+  .hero-clock-time { font-size:26px; font-weight:600; color:white; letter-spacing:1px; line-height:1; }
   .hero-clock-date { font-size:12px; color:rgba(255,255,255,0.6); margin-top:6px; }
 
   /* CONTENT */

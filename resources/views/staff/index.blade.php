@@ -388,7 +388,7 @@
           <div class="mfield"><label>Role</label>
             <select name="role" required>
               <option value="">Select role</option>
-              <option>Doctor</option><option>Nurse</option><option>Admin</option><option>Ward Manager</option>
+              <option>Doctor</option><option>Nurse</option><option>Admin</option><option>Manager</option>
             </select>
           </div>
           <div class="mfield"><label>Status</label>
@@ -444,7 +444,7 @@
         <div class="modal-row">
           <div class="mfield"><label>Role</label>
             <select name="role" id="edit-role" required>
-              <option>Doctor</option><option>Nurse</option><option>Admin</option><option>Ward Manager</option>
+              <option>Doctor</option><option>Nurse</option><option>Admin</option><option>Manager</option>
             </select>
           </div>
           <div class="mfield"><label>Status</label>
@@ -672,4 +672,5 @@
     `;
     container.appendChild(row);
   }
+</script>
 @endpush

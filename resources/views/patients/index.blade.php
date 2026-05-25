@@ -10,10 +10,6 @@
 
 @push('styles')
 <style>
-
-@push('styles')
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
     --navy:#1B2D5B; --navy-dark:#111e3f; --navy-light:#2a4080;
     --sky:#5B9BD5; --sky-light:#A8CBF0; --sky-pale:#D6EAFA;
@@ -21,38 +17,6 @@
     --border:#C8D9EE; --text:#1a2640; --sidebar-w:210px;
     --error:#D94F4F; --success:#2E8B6A; --warn:#C88000;
   }
-  body { font-family:'DM Sans',sans-serif; background:var(--off-white); color:var(--text); display:flex; min-height:100vh; }
-
-  /* SIDEBAR */
-  .sidebar { width:var(--sidebar-w); background:var(--navy); display:flex; flex-direction:column; position:fixed; top:0; left:0; bottom:0; z-index:100; }
-  .sidebar-logo { padding:22px 20px 18px; border-bottom:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; gap:10px; }
-  .logo-icon-sm { width:34px; height:34px; background:var(--sky); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .logo-icon-sm svg { width:18px; height:18px; fill:white; }
-  .logo-text { font-family:'Playfair Display',serif; font-size:13px; color:white; line-height:1.2; }
-  .logo-text span { display:block; font-family:'DM Sans',sans-serif; font-size:9px; color:var(--sky-light); letter-spacing:1px; text-transform:uppercase; font-weight:400; }
-  .nav-section { padding:16px 12px 8px; font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:rgba(255,255,255,0.3); font-weight:500; }
-  .nav-item { display:flex; align-items:center; gap:10px; padding:10px 16px; margin:1px 8px; border-radius:8px; cursor:pointer; color:rgba(255,255,255,0.55); font-size:13px; font-weight:400; transition:all 0.15s; text-decoration:none; }
-  .nav-item:hover { background:rgba(255,255,255,0.08); color:white; }
-  .nav-item.active { background:rgba(91,155,213,0.25); color:white; font-weight:500; }
-  .nav-item svg { width:16px; height:16px; flex-shrink:0; opacity:0.8; }
-  .nav-item.active svg { opacity:1; }
-  .sidebar-footer { margin-top:auto; padding:16px 12px; border-top:1px solid rgba(255,255,255,0.08); }
-  .avatar { width:32px; height:32px; border-radius:50%; background:var(--sky); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; color:white; flex-shrink:0; }
-  .user-card { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; }
-  .user-name { font-size:12px; font-weight:500; color:white; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .user-role { font-size:10px; color:var(--sky-light); }
-  .sign-out-btn { width:100%; margin-top:6px; padding:8px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:7px; color:rgba(255,255,255,0.5); font-family:'DM Sans',sans-serif; font-size:12px; cursor:pointer; transition:all 0.15s; }
-  .sign-out-btn:hover { background:rgba(255,255,255,0.12); color:white; }
-
-  /* MAIN */
-  .main { margin-left:var(--sidebar-w); flex:1; display:flex; flex-direction:column; min-height:100vh; }
-  .topbar { background:white; border-bottom:1px solid var(--border); padding:0 28px; height:58px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; }
-  .topbar-left h2 { font-family:'Playfair Display',serif; font-size:20px; color:var(--text); }
-  .topbar-right { display:flex; align-items:center; gap:10px; }
-  .date-badge { font-size:12px; color:var(--muted); background:var(--off-white); border:1px solid var(--border); border-radius:6px; padding:5px 12px; }
-  .add-btn { display:flex; align-items:center; gap:6px; padding:8px 16px; background:var(--navy); color:white; border:none; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; cursor:pointer; transition:background 0.15s; text-decoration:none; }
-  .add-btn:hover { background:var(--navy-light); }
-  .add-btn svg { width:14px; height:14px; fill:none; stroke:white; stroke-width:2; stroke-linecap:round; }
 
   /* CONTENT */
   .content { padding:28px; flex:1; }
@@ -101,6 +65,11 @@
   .btn-delete { border-color:var(--error); color:var(--error); background:transparent; }
   .btn-delete:hover { background:#fdf0f0; }
   .actions-cell { display:flex; gap:6px; flex-wrap:wrap; }
+
+  /* ADD BUTTON */
+  .add-btn { display:flex; align-items:center; gap:6px; padding:8px 16px; background:var(--navy); color:white; border:none; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; cursor:pointer; transition:background 0.15s; text-decoration:none; }
+  .add-btn:hover { background:var(--navy-light); }
+  .add-btn svg { width:14px; height:14px; fill:none; stroke:white; stroke-width:2; stroke-linecap:round; }
 
   /* EMPTY */
   .empty-state { text-align:center; padding:60px 20px; }
@@ -245,120 +214,67 @@
         </table>
         <div class="pagination">{{ $patients->links() }}</div>
       @endif
+    </div>
+
 </div>
+
+<!-- REGISTER PATIENT MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <div class="modal-title">Register New Patient</div>
+    <form method="POST" action="{{ route('patients.store') }}">
+      @csrf
+      <div class="form-grid">
+        <div class="form-group">
+          <label>First Name *</label>
+          <input type="text" name="first_name" value="{{ old('first_name') }}" required placeholder="e.g. Juan">
+          @error('first_name')<small style="color:var(--error)">{{ $message }}</small>@enderror
+        </div>
+        <div class="form-group">
+          <label>Last Name *</label>
+          <input type="text" name="last_name" value="{{ old('last_name') }}" required placeholder="e.g. Dela Cruz">
+          @error('last_name')<small style="color:var(--error)">{{ $message }}</small>@enderror
+        </div>
+        <div class="form-group">
+          <label>Date of Birth *</label>
+          <input type="date" name="date_of_birth" value="{{ old('date_of_birth') }}" required>
+          @error('date_of_birth')<small style="color:var(--error)">{{ $message }}</small>@enderror
+        </div>
+        <div class="form-group">
+          <label>Gender *</label>
+          <select name="gender" required>
+            <option value="">Select…</option>
+            <option value="Male"   {{ old('gender') === 'Male'   ? 'selected' : '' }}>Male</option>
+            <option value="Female" {{ old('gender') === 'Female' ? 'selected' : '' }}>Female</option>
+            <option value="Other"  {{ old('gender') === 'Other'  ? 'selected' : '' }}>Other</option>
+          </select>
+          @error('gender')<small style="color:var(--error)">{{ $message }}</small>@enderror
+        </div>
+        <div class="form-group">
+          <label>Contact Number</label>
+          <input type="text" name="contact_number" value="{{ old('contact_number') }}" placeholder="e.g. 09XX-XXX-XXXX">
+        </div>
+        <div class="form-group">
+          <label>Admitted?</label>
+          <div class="checkbox-row" style="margin-top:8px">
+            <input type="checkbox" name="is_admitted" value="1" {{ old('is_admitted') ? 'checked' : '' }}>
+            <span>Check if patient is being admitted</span>
+          </div>
+        </div>
+        <div class="form-group full">
+          <label>Address</label>
+          <textarea name="address" rows="2" placeholder="Street, Barangay, City…">{{ old('address') }}</textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" onclick="closeModal('addModal')">Cancel</button>
+        <button type="submit" class="btn-submit">Register Patient</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 @endsection
-
-<!-- ADD PATIENT MODAL -->
-<div class="modal-overlay" id="addModal">
-  <div class="modal">
-    <div class="modal-title">Register New Patient</div>
-    <form method="POST" action="{{ route('patients.store') }}">
-      @csrf
-      <div class="form-grid">
-        <div class="form-group">
-          <label>First Name *</label>
-          <input type="text" name="first_name" value="{{ old('first_name') }}" required placeholder="e.g. Juan">
-          @error('first_name')<small style="color:var(--error)">{{ $message }}</small>@enderror
-        </div>
-        <div class="form-group">
-          <label>Last Name *</label>
-          <input type="text" name="last_name" value="{{ old('last_name') }}" required placeholder="e.g. Dela Cruz">
-          @error('last_name')<small style="color:var(--error)">{{ $message }}</small>@enderror
-        </div>
-        <div class="form-group">
-          <label>Date of Birth *</label>
-          <input type="date" name="date_of_birth" value="{{ old('date_of_birth') }}" required>
-          @error('date_of_birth')<small style="color:var(--error)">{{ $message }}</small>@enderror
-        </div>
-        <div class="form-group">
-          <label>Gender *</label>
-          <select name="gender" required>
-            <option value="">Select…</option>
-            <option value="Male"   {{ old('gender') === 'Male'   ? 'selected' : '' }}>Male</option>
-            <option value="Female" {{ old('gender') === 'Female' ? 'selected' : '' }}>Female</option>
-            <option value="Other"  {{ old('gender') === 'Other'  ? 'selected' : '' }}>Other</option>
-          </select>
-          @error('gender')<small style="color:var(--error)">{{ $message }}</small>@enderror
-        </div>
-        <div class="form-group">
-          <label>Contact Number</label>
-          <input type="text" name="contact_number" value="{{ old('contact_number') }}" placeholder="e.g. 09XX-XXX-XXXX">
-        </div>
-        <div class="form-group">
-          <label>Admitted?</label>
-          <div class="checkbox-row" style="margin-top:8px">
-            <input type="checkbox" name="is_admitted" value="1" {{ old('is_admitted') ? 'checked' : '' }}>
-            <span>Check if patient is being admitted</span>
-          </div>
-        </div>
-        <div class="form-group full">
-          <label>Address</label>
-          <textarea name="address" rows="2" placeholder="Street, Barangay, City…">{{ old('address') }}</textarea>
-        </div>
-      </div>
-      <div class="form-actions">
-        <button type="button" class="btn-cancel" onclick="closeModal('addModal')">Cancel</button>
-        <button type="submit" class="btn-submit">Register Patient</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-
-<!-- ADD PATIENT MODAL -->
-<div class="modal-overlay" id="addModal">
-  <div class="modal">
-    <div class="modal-title">Register New Patient</div>
-    <form method="POST" action="{{ route('patients.store') }}">
-      @csrf
-      <div class="form-grid">
-        <div class="form-group">
-          <label>First Name *</label>
-          <input type="text" name="first_name" value="{{ old('first_name') }}" required placeholder="e.g. Juan">
-          @error('first_name')<small style="color:var(--error)">{{ $message }}</small>@enderror
-        </div>
-        <div class="form-group">
-          <label>Last Name *</label>
-          <input type="text" name="last_name" value="{{ old('last_name') }}" required placeholder="e.g. Dela Cruz">
-          @error('last_name')<small style="color:var(--error)">{{ $message }}</small>@enderror
-        </div>
-        <div class="form-group">
-          <label>Date of Birth *</label>
-          <input type="date" name="date_of_birth" value="{{ old('date_of_birth') }}" required>
-          @error('date_of_birth')<small style="color:var(--error)">{{ $message }}</small>@enderror
-        </div>
-        <div class="form-group">
-          <label>Gender *</label>
-          <select name="gender" required>
-            <option value="">Select…</option>
-            <option value="Male"   {{ old('gender') === 'Male'   ? 'selected' : '' }}>Male</option>
-            <option value="Female" {{ old('gender') === 'Female' ? 'selected' : '' }}>Female</option>
-            <option value="Other"  {{ old('gender') === 'Other'  ? 'selected' : '' }}>Other</option>
-          </select>
-          @error('gender')<small style="color:var(--error)">{{ $message }}</small>@enderror
-        </div>
-        <div class="form-group">
-          <label>Contact Number</label>
-          <input type="text" name="contact_number" value="{{ old('contact_number') }}" placeholder="e.g. 09XX-XXX-XXXX">
-        </div>
-        <div class="form-group">
-          <label>Admitted?</label>
-          <div class="checkbox-row" style="margin-top:8px">
-            <input type="checkbox" name="is_admitted" value="1" {{ old('is_admitted') ? 'checked' : '' }}>
-            <span>Check if patient is being admitted</span>
-          </div>
-        </div>
-        <div class="form-group full">
-          <label>Address</label>
-          <textarea name="address" rows="2" placeholder="Street, Barangay, City…">{{ old('address') }}</textarea>
-        </div>
-      </div>
-      <div class="form-actions">
-        <button type="button" class="btn-cancel" onclick="closeModal('addModal')">Cancel</button>
-        <button type="submit" class="btn-submit">Register Patient</button>
-      </div>
-    </form>
-  </div>
 
 @push('scripts')
 <script>

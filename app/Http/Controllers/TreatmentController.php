@@ -10,19 +10,32 @@ use Illuminate\Http\Request;
 
 class TreatmentController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $treatments = Treatment::with(['patient', 'doctor'])
-            ->latest('treatment_date')
-            ->paginate(10);
+        $query = Treatment::with(['patient', 'doctor'])
+            ->latest('treatment_date');
+
+        if ($request->filled('patient_id')) {
+            $query->where('patient_id', $request->patient_id);
+        }
+
+        $totalTreatments = (clone $query)->count();
+        $activeDiagnoses = (clone $query)->whereNotNull('diagnosis')->count();
+        $treatments = $query->paginate(10)->withQueryString();
+        $selectedPatient = $request->filled('patient_id')
+            ? Patient::find($request->patient_id)
+            : null;
 
         return view('treatments.index', [
             'treatments'      => $treatments,
-            'totalTreatments' => Treatment::count(),
-            'activeDiagnoses' => Treatment::whereDate('treatment_date', today())->count(),
-            'proceduresToday' => Treatment::whereDate('treatment_date', today())->count(),
+            'totalTreatments' => $totalTreatments,
+            'activeDiagnoses' => $activeDiagnoses,
+            'proceduresToday' => Treatment::whereDate('treatment_date', today())
+                ->when($request->filled('patient_id'), fn ($q) => $q->where('patient_id', $request->patient_id))
+                ->count(),
             'patients'        => Patient::orderBy('first_name')->get(),
             'doctors'         => Staff::where('role', 'Doctor')->orderBy('first_name')->get(),
+            'selectedPatient' => $selectedPatient,
         ]);
     }
 

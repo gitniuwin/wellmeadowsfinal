@@ -82,9 +82,12 @@
   .alert-error   { background:#fdf0f0; color:#a03030; border:1px solid #f5c0c0; }
 
   /* PAGINATION */
-  .pagination { padding:16px 20px; display:flex; justify-content:flex-end; gap:6px; border-top:1px solid var(--border); }
-  .pagination a, .pagination span { padding:6px 12px; border-radius:6px; font-size:12px; border:1px solid var(--border); color:var(--navy); text-decoration:none; }
-  .pagination .active span { background:var(--navy); color:white; border-color:var(--navy); }
+  .pagination { padding:12px 20px; display:flex; justify-content:flex-end; border-top:1px solid var(--border); font-size:12px; }
+  .pagination nav { width:100%; }
+  .pagination svg { width:16px; height:16px; }
+  .pagination a, .pagination span { font-size:12px; line-height:1.2; }
+  .checkbox-row { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text); }
+  .checkbox-row input { width:16px; height:16px; padding:0; flex:0 0 16px; }
 
   /* MODAL */
   .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:200; align-items:center; justify-content:center; }
@@ -212,7 +215,7 @@
             @endforeach
           </tbody>
         </table>
-        <div class="pagination">{{ $patients->links() }}</div>
+        <div class="pagination">{{ $patients->links('pagination::simple-bootstrap-4') }}</div>
       @endif
     </div>
 

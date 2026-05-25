@@ -1,116 +1,148 @@
 @extends('layouts.app')
+@section('page-title', 'Treatment History')
+
+@push('styles')
+<style>
+  :root {
+    --navy:#1B2D5B; --navy-dark:#111e3f; --navy-light:#2a4080;
+    --sky:#5B9BD5; --sky-pale:#D6EAFA; --off-white:#F4F8FC;
+    --muted:#6B7E9F; --border:#C8D9EE; --text:#1a2640;
+  }
+  .history-wrap { padding:28px; display:grid; grid-template-columns:320px 1fr; gap:20px; }
+  .card { background:white; border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+  .card.pad { padding:20px; }
+  .card-header { border-bottom:1px solid var(--border); padding:16px 20px; }
+  .card-title { font-size:14px; font-weight:700; color:var(--navy); }
+  .search-wrap { position:relative; margin-bottom:14px; }
+  .search-wrap svg { position:absolute; left:10px; top:50%; transform:translateY(-50%); width:14px; height:14px; stroke:var(--muted); fill:none; pointer-events:none; }
+  .search-input { width:100%; padding:9px 12px 9px 32px; border:1px solid var(--border); border-radius:8px; font-size:13px; background:var(--off-white); color:var(--text); outline:none; }
+  .search-input:focus { border-color:var(--sky); background:white; }
+  .patient-list { display:flex; flex-direction:column; gap:8px; max-height:520px; overflow-y:auto; padding-right:4px; }
+  .patient-link { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; color:var(--text); text-decoration:none; border:1px solid transparent; }
+  .patient-link:hover, .patient-link.active { background:var(--sky-pale); border-color:var(--border); }
+  .patient-avatar { width:32px; height:32px; border-radius:50%; background:var(--off-white); color:var(--navy); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0; }
+  .patient-name { font-size:13px; font-weight:600; color:var(--navy-dark); }
+  .patient-id { font-size:11px; color:var(--muted); margin-top:2px; }
+  .patient-banner { background:var(--navy); color:white; border-radius:12px; padding:20px; display:flex; align-items:center; gap:14px; margin-bottom:20px; }
+  .banner-avatar { width:48px; height:48px; border-radius:50%; background:rgba(255,255,255,0.12); display:flex; align-items:center; justify-content:center; font-weight:700; }
+  .banner-name { font-size:20px; font-weight:700; }
+  .banner-sub { color:rgba(255,255,255,0.62); font-size:12px; margin-top:2px; }
+  .banner-count { margin-left:auto; text-align:right; }
+  .banner-count-value { font-size:26px; font-weight:700; line-height:1; }
+  .banner-count-label { color:rgba(255,255,255,0.62); font-size:11px; margin-top:4px; }
+  .timeline { padding:20px; }
+  .timeline-item { position:relative; padding-left:28px; padding-bottom:24px; }
+  .timeline-item:last-child { padding-bottom:0; }
+  .timeline-dot { position:absolute; left:0; top:5px; width:13px; height:13px; border-radius:50%; border:2px solid var(--navy); background:white; }
+  .timeline-line { position:absolute; left:6px; top:20px; bottom:0; width:1px; background:var(--border); }
+  .record-card { background:var(--off-white); border:1px solid transparent; border-radius:10px; padding:14px 16px; }
+  .record-card:hover { border-color:var(--border); background:var(--sky-pale); }
+  .record-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:8px; }
+  .record-type { display:inline-flex; padding:3px 10px; border-radius:20px; background:var(--navy); color:white; font-size:11px; font-weight:600; margin-bottom:6px; }
+  .record-title { color:var(--navy-dark); font-size:14px; font-weight:700; }
+  .record-date { color:var(--muted); font-size:12px; white-space:nowrap; }
+  .record-text { color:var(--text); font-size:13px; margin-top:6px; }
+  .record-meta { color:var(--muted); font-size:12px; margin-top:8px; }
+  .empty-state { text-align:center; padding:70px 20px; color:var(--muted); }
+  .empty-state svg { width:48px; height:48px; stroke:var(--border); fill:none; margin:0 auto 12px; }
+  @media (max-width: 900px) { .history-wrap { grid-template-columns:1fr; padding:18px 0; } .patient-list { max-height:none; } }
+</style>
+@endpush
 
 @section('content')
-
-<div class="grid grid-cols-3 gap-6">
-    {{-- Patient Search Panel --}}
-    <div class="col-span-1">
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sticky top-28">
-            <h2 class="font-display font-semibold text-navy-dark mb-4">Patient History Lookup</h2>
-            <div class="relative mb-4">
-                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
-                <input type="text" id="patientSearch" placeholder="Search by name or ID..."
-                    class="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-navy/20">
-            </div>
-
-            <div class="space-y-2 max-h-96 overflow-y-auto pr-1">
-                @forelse($patients ?? [] as $patient)
-                <a href="{{ route('history.index', ['patient_id' => $patient->id]) }}"
-                    class="flex items-center gap-3 p-3 rounded-xl hover:bg-sky-pale transition cursor-pointer {{ (request('patient_id') == $patient->id) ? 'bg-sky-pale ring-1 ring-navy/20' : '' }}">
-                    <div class="w-9 h-9 rounded-full bg-navy/10 flex items-center justify-center flex-shrink-0">
-                        <svg class="w-4 h-4 text-navy/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-sm font-medium text-navy-dark">{{ $patient->full_name }}</p>
-                        <p class="text-xs text-gray-400">ID #{{ $patient->id }}</p>
-                    </div>
-                </a>
-                @empty
-                <p class="text-sm text-gray-400 text-center py-6">No patients found</p>
-                @endforelse
-            </div>
-        </div>
+<div class="history-wrap">
+  <div class="card pad">
+    <div class="card-title" style="margin-bottom:14px;">Patient History Lookup</div>
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="patientSearch" placeholder="Search by name or ID..." class="search-input">
     </div>
 
-    {{-- History Timeline --}}
-    <div class="col-span-2">
-        @if(isset($selectedPatient))
-        {{-- Patient Info Banner --}}
-        <div class="bg-navy rounded-2xl p-5 text-white mb-6 flex items-center gap-4">
-            <div class="w-14 h-14 rounded-full bg-white/10 border border-white/20 flex items-center justify-center flex-shrink-0">
-                <svg class="w-7 h-7 text-sky-soft" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                </svg>
-            </div>
-            <div class="flex-1">
-                <h3 class="font-display font-bold text-xl">{{ $selectedPatient->full_name }}</h3>
-                <p class="text-sky-soft/70 text-sm">Patient ID #{{ $selectedPatient->id }}</p>
-            </div>
-            <div class="text-right">
-                <p class="text-2xl font-display font-bold">{{ $history->count() }}</p>
-                <p class="text-sky-soft/70 text-xs">Total Records</p>
-            </div>
+    <div class="patient-list" id="patientList">
+      @forelse($patients ?? [] as $patient)
+        <a href="{{ route('history.index', ['patient_id' => $patient->id]) }}" class="patient-link {{ (request('patient_id') == $patient->id) ? 'active' : '' }}">
+          <div class="patient-avatar">{{ strtoupper(substr($patient->first_name, 0, 1) . substr($patient->last_name, 0, 1)) }}</div>
+          <div>
+            <div class="patient-name">{{ $patient->full_name }}</div>
+            <div class="patient-id">ID #{{ $patient->id }}</div>
+          </div>
+        </a>
+      @empty
+        <div class="empty-state" style="padding:30px 10px;">No patients found.</div>
+      @endforelse
+    </div>
+  </div>
+
+  <div>
+    @if(isset($selectedPatient))
+      <div class="patient-banner">
+        <div class="banner-avatar">{{ strtoupper(substr($selectedPatient->first_name, 0, 1) . substr($selectedPatient->last_name, 0, 1)) }}</div>
+        <div>
+          <div class="banner-name">{{ $selectedPatient->full_name }}</div>
+          <div class="banner-sub">Patient ID #{{ $selectedPatient->id }}</div>
         </div>
+        <div class="banner-count">
+          <div class="banner-count-value">{{ $history->count() }}</div>
+          <div class="banner-count-label">Total Records</div>
+        </div>
+      </div>
 
-        {{-- Timeline --}}
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <h2 class="font-display font-semibold text-navy-dark mb-6">Treatment History</h2>
-
-            @forelse($history ?? [] as $record)
-            <div class="relative pl-8 pb-8 last:pb-0">
-                {{-- Timeline dot --}}
-                <div class="absolute left-0 top-1 w-4 h-4 rounded-full border-2 border-navy bg-white"></div>
-                @if(!$loop->last)
-                <div class="absolute left-[7px] top-5 bottom-0 w-0.5 bg-gray-100"></div>
-                @endif
-
-                <div class="bg-gray-50 rounded-xl p-4 hover:bg-sky-pale/50 transition">
-                    <div class="flex items-start justify-between mb-2">
-                        <div>
-                            <span class="inline-block px-2.5 py-1 rounded-lg bg-navy text-white text-xs font-semibold mb-2">
-                                {{ $record->type ?? 'Treatment' }}
-                            </span>
-                            <h4 class="font-semibold text-navy-dark text-sm">{{ $record->diagnosis ?? $record->title }}</h4>
-                        </div>
-                        <p class="text-xs text-gray-400 flex-shrink-0 ml-4">
-                            {{ \Carbon\Carbon::parse($record->date)->format('M d, Y') }}
-                        </p>
-                    </div>
-                    @if($record->procedure ?? false)
-                    <p class="text-sm text-gray-600 mb-2"><span class="font-medium">Procedure:</span> {{ $record->procedure }}</p>
-                    @endif
-                    @if($record->notes ?? false)
-                    <p class="text-sm text-gray-500">{{ $record->notes }}</p>
-                    @endif
-                    <p class="text-xs text-gray-400 mt-2">Attending: <span class="font-medium text-navy/60">{{ $record->doctor->full_name ?? 'N/A' }}</span></p>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Treatment History</div>
+        </div>
+        <div class="timeline">
+          @forelse($history ?? [] as $record)
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              @if(!$loop->last)
+                <div class="timeline-line"></div>
+              @endif
+              <div class="record-card">
+                <div class="record-head">
+                  <div>
+                    <span class="record-type">{{ $record->type ?? 'Treatment' }}</span>
+                    <div class="record-title">{{ $record->diagnosis ?? $record->title }}</div>
+                  </div>
+                  <div class="record-date">{{ \Carbon\Carbon::parse($record->date)->format('M d, Y') }}</div>
                 </div>
+                @if($record->procedure ?? false)
+                  <div class="record-text"><strong>Procedure:</strong> {{ $record->procedure }}</div>
+                @endif
+                @if($record->notes ?? false)
+                  <div class="record-text">{{ $record->notes }}</div>
+                @endif
+                <div class="record-meta">Attending: {{ $record->doctor->full_name ?? 'N/A' }}</div>
+              </div>
             </div>
-            @empty
-            <div class="text-center py-12 text-gray-400">
-                <svg class="w-12 h-12 text-gray-200 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                <p class="text-sm font-medium">No history records found</p>
-                <p class="text-xs text-gray-300 mt-1">This patient has no recorded treatments yet</p>
+          @empty
+            <div class="empty-state">
+              <svg viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <p>No history records found.</p>
             </div>
-            @endforelse
+          @endforelse
         </div>
-
-        @else
-        {{-- Empty State --}}
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center py-24 text-gray-400">
-            <svg class="w-16 h-16 text-gray-200 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-            </svg>
-            <p class="text-base font-semibold text-gray-500">Select a patient</p>
-            <p class="text-sm text-gray-300 mt-1">Choose a patient from the list to view their treatment history</p>
+      </div>
+    @else
+      <div class="card">
+        <div class="empty-state">
+          <svg viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          <p style="font-weight:600;color:var(--text);">Select a patient</p>
+          <p style="font-size:13px;margin-top:4px;">Choose a patient from the list to view their treatment history.</p>
         </div>
-        @endif
-    </div>
+      </div>
+    @endif
+  </div>
 </div>
-
 @endsection
+
+@push('scripts')
+<script>
+  document.getElementById('patientSearch')?.addEventListener('input', event => {
+    const value = event.target.value.toLowerCase();
+    document.querySelectorAll('#patientList .patient-link').forEach(link => {
+      link.style.display = link.textContent.toLowerCase().includes(value) ? '' : 'none';
+    });
+  });
+</script>
+@endpush

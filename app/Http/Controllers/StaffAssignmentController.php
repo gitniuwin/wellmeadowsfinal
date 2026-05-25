@@ -16,14 +16,14 @@ class StaffAssignmentController extends Controller
             ->latest('assigned_date')
             ->paginate(10);
 
-        return view('staff.index', [
+        return view('staff-assignment.index', [
             'assignments'        => $assignments,
             'totalDoctors'       => Staff::where('role', 'Doctor')->count(),
             'totalNurses'        => Staff::where('role', 'Nurse')->count(),
             'assignedToday'      => StaffAssignment::whereDate('assigned_date', today())->count(),
             'pendingAssignments' => StaffAssignment::whereNull('treatment_id')->count(),
-            'staff'              => Staff::orderBy('name')->get(),
-            'patients'           => Patient::orderBy('name')->get(),
+            'staff'              => Staff::orderBy('first_name')->get(),
+            'patients'           => Patient::orderBy('first_name')->get(),
             'treatments'         => Treatment::with('patient')->latest()->get(),
         ]);
     }

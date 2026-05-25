@@ -26,10 +26,10 @@ class PatientController extends Controller
             $query->where('is_admitted', $request->status === 'admitted');
         }
 
-        $patients       = $query->latest()->paginate(10)->withQueryString();
-        $totalPatients  = Patient::count();
-        $admitted       = Patient::where('is_admitted', true)->count();
-        $outpatients    = Patient::where('is_admitted', false)->count();
+        $patients      = $query->latest()->paginate(10)->withQueryString();
+        $totalPatients = Patient::count();
+        $admitted      = Patient::where('is_admitted', true)->count();
+        $outpatients   = Patient::where('is_admitted', false)->count();
 
         return view('patients.index', compact(
             'patients', 'totalPatients', 'admitted', 'outpatients'
@@ -53,7 +53,6 @@ class PatientController extends Controller
             'is_admitted'    => 'boolean',
         ]);
 
-        // Auto-generate patient number: P-YYYYMMDD-XXXX
         $validated['patient_number'] = 'P-' . now()->format('Ymd') . '-' . strtoupper(substr(uniqid(), -4));
         $validated['is_admitted']    = $request->boolean('is_admitted');
 
@@ -65,7 +64,7 @@ class PatientController extends Controller
 
     public function show(Patient $patient)
     {
-        $patient->load('bed.ward');
+        $patient->load(['bed.ward', 'appointments.doctor', 'treatments.doctor', 'bills']);
         return view('patients.show', compact('patient'));
     }
 
@@ -102,9 +101,13 @@ class PatientController extends Controller
 
     public function discharge(Patient $patient)
     {
-        // Release the bed if assigned
         if ($patient->bed) {
-            $patient->bed->update(['patient_id' => null, 'status' => 'available']);
+            $patient->bed->update([
+                'patient_id'  => null,
+                'status'      => 'vacant',
+                'assigned_at' => null,
+                'notes'       => null,
+            ]);
         }
 
         $patient->update(['is_admitted' => false]);

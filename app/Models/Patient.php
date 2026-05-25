@@ -24,6 +24,21 @@ class Patient extends Model
         return $this->hasOne(Bed::class);
     }
 
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
+    }
+
+    public function treatments()
+    {
+        return $this->hasMany(Treatment::class);
+    }
+
+    public function bills()
+    {
+        return $this->hasMany(Bill::class);
+    }
+
     public function getFullNameAttribute(): string
     {
         return $this->first_name . ' ' . $this->last_name;

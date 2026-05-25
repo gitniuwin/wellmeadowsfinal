@@ -33,4 +33,19 @@ class Staff extends Model
     {
         return $this->hasMany(Responsibility::class);
     }
+
+    public function appointments()
+    {
+    return $this->hasMany(\App\Models\Appointment::class, 'doctor_id');
+    }
+
+    public function treatments()
+    {
+    return $this->hasMany(\App\Models\Treatment::class, 'doctor_id');
+    }
+
+    public function staffAssignments()
+    {
+    return $this->hasMany(\App\Models\StaffAssignment::class);
+    }
 }

@@ -1,10 +1,15 @@
 <?php
+use App\Http\Controllers\PatientController;
 use App\Http\Controllers\WardController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\BillingController;
+use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\TreatmentController;
+use App\Http\Controllers\HistoryController;
+use App\Http\Controllers\StaffAssignmentController;
 
 // Redirect root to login
 Route::get('/', function () {
@@ -53,15 +58,27 @@ Route::middleware('auth')->group(function () {
         Route::patch('/beds/{bed}/release', [WardController::class, 'releaseBed'])     ->name('beds.release');
         Route::patch('/beds/{bed}/status',  [WardController::class, 'updateBedStatus'])->name('beds.status');
     });
+
+    // Module 5 — Billing & Reporting
+    Route::get('/billing',         [BillingController::class, 'index'])->name('billing.index');
+    Route::get('/billing/all',     [BillingController::class, 'allBills']);
+    Route::get('/billing/create',  [BillingController::class, 'create']);
+    Route::post('/billing',        [BillingController::class, 'store']);
+    Route::delete('/billing/{id}', [BillingController::class, 'destroy']);
+    Route::get('/payments',        [BillingController::class, 'payments']);
+    Route::post('/payments',       [BillingController::class, 'recordPayment']);
+    Route::get('/outstanding',     [BillingController::class, 'outstanding']);
+    Route::get('/reports',         [BillingController::class, 'reports']);
+
+    // Module 4 — Appointment & Treatment Management
+    Route::resource('appointments', AppointmentController::class);
+    Route::resource('treatments', TreatmentController::class);
+    Route::get('/history', [HistoryController::class, 'index'])->name('history.index');
+    Route::get('/history/{patient}', [HistoryController::class, 'show'])->name('history.show');
+    Route::resource('staff-assignment', StaffAssignmentController::class)
+        ->only(['index', 'store', 'destroy']);
     
-    // Module 5 — Billing & Reporting  ← ADD THIS BLOCK
-        Route::get('/billing',         [BillingController::class, 'index'])->name('billing.index');
-        Route::get('/billing/all',     [BillingController::class, 'allBills']);
-        Route::get('/billing/create',  [BillingController::class, 'create']);
-        Route::post('/billing',        [BillingController::class, 'store']);
-        Route::delete('/billing/{id}', [BillingController::class, 'destroy']);
-        Route::get('/payments',        [BillingController::class, 'payments']);
-        Route::post('/payments',       [BillingController::class, 'recordPayment']);
-        Route::get('/outstanding',     [BillingController::class, 'outstanding']);
-        Route::get('/reports',         [BillingController::class, 'reports']);
+    // Module 1 — Patient Management
+    Route::resource('patients', PatientController::class);
+    Route::patch('/patients/{patient}/discharge', [PatientController::class, 'discharge'])->name('patients.discharge');
 });

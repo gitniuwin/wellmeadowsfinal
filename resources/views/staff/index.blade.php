@@ -1,11 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="csrf-token" content="{{ csrf_token() }}">
-<title>Wellmeadows — Staff & Department Management</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+@extends('layouts.app')
+@section('page-title', 'Staff & Department Management')
+
+@section('topbar-action')
+  @if(auth()->user()->role !== 'Charge Nurse')
+  <button class="add-btn" onclick="openModal('add')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Add Staff
+  </button>
+  @endif
+@endsection
+
+@push('styles')
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -165,107 +170,10 @@
   .avbg { background:#E3EFFE; color:#1B4FA8; }
   .avbg:nth-child(2) { background:#E3F7EF; color:#1B7A54; }
 </style>
-</head>
-<body>
+@endpush
 
-<!-- SIDEBAR -->
-<aside class="sidebar">
-  <div class="sidebar-logo">
-
-    <div class="logo-icon-sm">
-      <svg fill="currentColor" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-
-        <path d="M493.666,102.065H380.904V61.664c0-10.125-8.209-18.334-18.334-18.334H149.43c-10.125,0-18.334,8.209-18.334,18.334v40.401H18.334C8.209,102.065,0,110.274,0,120.399v329.937c0,10.125,8.209,18.334,18.334,18.334c7.547,0,449.061,0,475.333,0c10.125,0,18.334-8.209,18.334-18.334V120.399C512,110.274,503.791,102.065,493.666,102.065z M131.096,432.002H36.667V216.347h94.429V432.002z M131.096,179.68H36.667v-40.947h94.429V179.68z M276.014,432.002h-40.539v-78.518h40.539V432.002z M344.238,432.002h-31.556v-96.851c0-10.125-8.209-18.334-18.334-18.334h-77.206c-10.125,0-18.334,8.209-18.334,18.334v96.851h-31.045c-0.001-13.078-0.001-335.565-0.001-352.004h176.475C344.238,96.603,344.238,419.21,344.238,432.002z M380.904,138.732h94.429v40.947h-94.429V138.732z M475.334,432.002h-94.429V216.347h94.429V432.002z"></path>
-
-        <path d="M217.193,177.54h20.474v20.474c0,10.125,8.209,18.334,18.334,18.334s18.334-8.209,18.334-18.334V177.54h20.474c10.125,0,18.334-8.209,18.334-18.334s-8.209-18.334-18.334-18.334h-20.474v-20.474c0-10.125-8.209-18.334-18.334-18.334s-18.334,8.209-18.334,18.334v20.474h-20.474c-10.125,0-18.334,8.209-18.334,18.334S207.068,177.54,217.193,177.54z"></path>
-
-      </svg>
-    </div>
-    <div class="logo-text">Wellmeadows <span>Hospital System</span></div>
-  </div>
-  <div class="nav-section">Main Menu</div>
-  <a class="nav-item" href="{{ route('dashboard') }}">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-    Dashboard
-  </a>
-  <a class="nav-item active" href="{{ route('staff.index') }}">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-    Staff & Depts
-  </a>
-  <a class="nav-item" href="#">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-    Schedules
-  </a>
-  <a class="nav-item" href="#">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-    Wards
-  </a>
-  <a class="nav-item" href="#">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-    Appointment
-  </a>
-  <a class="nav-item" href="#">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    Patient Care
-  </a>
-  <a class="nav-item" href="#">
-  <!-- Updated Billing Icon -->
-  <svg viewBox="0 0 32 32" fill="currentColor">
-    <path d="M15.002,8l-0.998,0c-0.552,0 -1,0.448 -1,1c0,0.552 0.448,1 1,1l1.002,-0l0.002,1.002c0.001,0.552 0.45,0.999 1.002,0.998c0.552,-0.001 0.999,-0.45 0.998,-1.002l-0.002,-0.998l0.998,0c0.552,0 1,-0.448 1,-1c0,-0.552 -0.448,-1 -1,-1l-1.002,0l-0.002,-1.002c-0.001,-0.552 -0.45,-0.999 -1.002,-0.998c-0.552,0.001 -0.999,0.45 -0.998,1.002l0.002,0.998Z"></path>
-    <path d="M26,9l-0,-4c-0,-0.796 -0.316,-1.559 -0.879,-2.121c-0.562,-0.563 -1.325,-0.879 -2.121,-0.879c-3.463,0 -10.537,0 -14,-0c-0.796,-0 -1.559,0.316 -2.121,0.879c-0.563,0.562 -0.879,1.325 -0.879,2.121l0,22c0,0.796 0.316,1.559 0.879,2.121c0.562,0.563 1.325,0.879 2.121,0.879c2.6,-0 10.316,0 13.999,0c0.552,0 1,-0.448 1,-1c0,-0.552 -0.448,-1 -1,-1c-3.683,0 -11.399,-0 -13.999,-0c-0.265,0 -0.52,-0.105 -0.707,-0.293c-0.188,-0.187 -0.293,-0.442 -0.293,-0.707c-0,-0 -0,-22 -0,-22c0,-0.265 0.105,-0.52 0.293,-0.707c0.187,-0.188 0.442,-0.293 0.707,-0.293l14,0c0.265,-0 0.52,0.105 0.707,0.293c0.188,0.187 0.293,0.442 0.293,0.707c-0,-0 -0,4 -0,4c-0,0.552 0.448,1 1,1c0.552,0 1,-0.448 1,-1Z"></path>
-    <path d="M23.982,14.206c-1.159,0.414 -1.99,1.523 -1.99,2.825c0,1.659 1.333,2.987 2.992,2.987c0.553,0 1.008,0.448 1.008,1.001c0,0.552 -0.448,1 -1,1c-0.552,-0 -1,-0.448 -1,-1c0,-0.552 -0.448,-1 -1,-1c-0.552,-0 -1,0.448 -1,1c0,1.302 0.832,2.412 1.993,2.826l-0.005,1.163c-0.002,0.552 0.444,1.002 0.996,1.004c0.552,0.003 1.002,-0.444 1.004,-0.996l0.005,-1.166c1.168,-0.41 2.007,-1.523 2.007,-2.831c0,-1.655 -1.354,-3.001 -3.008,-3.001c-0.549,0 -0.992,-0.438 -0.992,-0.987c0,-0.552 0.448,-1 1,-1c0.55,0 0.997,0.445 1,0.994l0,0.013c0.004,0.548 0.45,0.993 1,0.993c0.552,0 1,-0.448 1,-1c0,-1.309 -0.84,-2.423 -2.01,-2.832l0.01,-1.179c0.004,-0.552 -0.44,-1.003 -0.992,-1.008c-0.552,-0.004 -1.004,0.441 -1.008,0.992l-0.01,1.202Z"></path>
-    <path d="M11,17.019l8,-0c0.552,-0 1,-0.448 1,-1c-0,-0.552 -0.448,-1 -1,-1l-8,-0c-0.552,-0 -1,0.448 -1,1c-0,0.552 0.448,1 1,1Z"></path>
-    <path d="M11,21.031l8,-0c0.552,-0 1,-0.448 1,-1c-0,-0.552 -0.448,-1 -1,-1l-8,-0c-0.552,-0 -1,0.448 -1,1c-0,0.552 0.448,1 1,1Z"></path>
-    <path d="M11,25.012l8,0c0.552,0 1,-0.448 1,-1c0,-0.552 -0.448,-1 -1,-1l-8,0c-0.552,0 -1,0.448 -1,1c0,0.552 0.448,1 1,1Z"></path>
-  </svg>
-  Billing & Reporting
-</a>
-  <div class="nav-section">System</div>
-<a class="nav-item" href="#">
-  <svg viewBox="0 0 24 24" fill="none"
-       xmlns="http://www.w3.org/2000/svg"
-       stroke="currentColor"
-       stroke-width="1.8"
-       stroke-linecap="round"
-       stroke-linejoin="round">
-    <!-- outer gear ring -->
-    <path d="M12 8.5a3.5 3.5 0 1 0 0 7a3.5 3.5 0 0 0 0-7z"/>
-    <!-- gear body simplified -->
-    <path d="M19.4 15a7.8 7.8 0 0 0 .1-2l2-1.2-2-3.4-2.3.6a7.6 7.6 0 0 0-1.7-1L15 5h-6l-.5 2a7.6 7.6 0 0 0-1.7 1L4.5 7.4l-2 3.4 2 1.2a7.8 7.8 0 0 0 .1 2l-2 1.2 2 3.4 2.3-.6a7.6 7.6 0 0 0 1.7 1L9 21h6l.5-2a7.6 7.6 0 0 0 1.7-1l2.3.6 2-3.4-2-1.2z"/>
-  </svg>
-  Settings
-</a>
-  <div class="sidebar-footer">
-    <div class="user-card">
-      <div class="avatar">{{ auth()->user()->initials }}</div>
-      <div>
-        <div class="user-name">{{ auth()->user()->full_name }}</div>
-        <div class="user-role">{{ auth()->user()->role }}</div>
-      </div>
-    </div>
-    <form method="POST" action="{{ route('logout') }}">
-      @csrf
-      <button type="submit" class="sign-out-btn">Sign Out</button>
-    </form>
-  </div>
-</aside>
-
-<!-- MAIN -->
-<main class="main">
-  <div class="topbar">
-    <div class="topbar-left"><h2>Staff & Department Management</h2></div>
-    <div class="topbar-right">
-      <div class="date-badge">{{ now()->format('F d, Y') }}</div>
-      @if(auth()->user()->role !== 'Charge Nurse')
-      <button class="add-btn" onclick="openModal('add')">
-        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Add Staff
-      </button>
-      @endif
-    </div>
-  </div>
-
-  <div class="content">
+@section('content')
+<div style="padding:28px;">
 
     {{-- Flash Messages --}}
     @if(session('success'))
@@ -658,7 +566,10 @@
     </form>
   </div>
 </div>
+</div>
+@endsection
 
+@push('scripts')
 <script>
   // Store all staff data for JS use
   const allStaffData = @json($staffJson);
@@ -763,6 +674,4 @@
     `;
     container.appendChild(row);
   }
-</script>
-</body>
-</html>
+@endpush

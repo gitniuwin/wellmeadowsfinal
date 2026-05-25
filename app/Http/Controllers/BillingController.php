@@ -7,7 +7,7 @@ use App\Models\Payment;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
-class BillingController
+class BillingController extends Controller
 {
     // Auto-marks overdue bills and returns stats array
     private function getStats(): array

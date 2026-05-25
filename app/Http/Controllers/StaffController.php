@@ -15,7 +15,6 @@ class StaffController extends Controller
         $user  = Auth::user();
         $query = Staff::with(['schedule', 'responsibilities']);
 
-        // Search
         if ($request->filled('search')) {
             $s = $request->search;
             $query->where(function ($q) use ($s) {
@@ -33,7 +32,6 @@ class StaffController extends Controller
         $staff    = $query->paginate(10)->withQueryString();
         $allStaff = Staff::with(['schedule', 'responsibilities'])->get();
 
-        // Pre-map for JS
         $staffJson = $allStaff->map(function ($s) {
             return [
                 'id'         => $s->id,
@@ -77,7 +75,6 @@ class StaffController extends Controller
         ));
     }
 
-    // TASK 1 — Add staff (Director & HR only)
     public function store(Request $request)
     {
         $request->validate([
@@ -132,7 +129,6 @@ class StaffController extends Controller
         return redirect()->route('staff.index')->with('success', 'Staff member removed.');
     }
 
-    // TASK 3 — Schedule
     public function updateSchedule(Request $request, $id)
     {
         $staff = Staff::findOrFail($id);
@@ -146,7 +142,6 @@ class StaffController extends Controller
         return redirect()->route('staff.index')->with('success', 'Schedule updated.');
     }
 
-    // TASK 4 — Responsibilities
     public function updateResponsibilities(Request $request, $id)
     {
         $staff = Staff::findOrFail($id);
@@ -161,10 +156,9 @@ class StaffController extends Controller
         return redirect()->route('staff.index')->with('success', 'Responsibilities updated.');
     }
 
-    // Live search
     public function search(Request $request)
     {
-        $q = $request->get('q', '');
+        $q       = $request->get('q', '');
         $results = Staff::where('first_name', 'like', "%$q%")
             ->orWhere('last_name', 'like', "%$q%")
             ->limit(8)->get()

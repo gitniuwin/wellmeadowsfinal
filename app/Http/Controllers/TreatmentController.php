@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Treatment;
 use App\Models\Patient;
 use App\Models\Staff;
+use App\Models\Appointment;
 use Illuminate\Http\Request;
 
 class TreatmentController extends Controller
@@ -20,20 +21,30 @@ class TreatmentController extends Controller
             'totalTreatments' => Treatment::count(),
             'activeDiagnoses' => Treatment::whereDate('treatment_date', today())->count(),
             'proceduresToday' => Treatment::whereDate('treatment_date', today())->count(),
-            'patients'        => Patient::orderBy('name')->get(),
-            'doctors'         => Staff::where('role', 'Doctor')->orderBy('name')->get(),
+            'patients'        => Patient::orderBy('first_name')->get(),
+            'doctors'         => Staff::where('role', 'Doctor')->orderBy('first_name')->get(),
+        ]);
+    }
+
+    public function create()
+    {
+        return view('treatments.create', [
+            'patients'     => Patient::orderBy('first_name')->get(),
+            'doctors'      => Staff::where('role', 'Doctor')->orderBy('first_name')->get(),
+            'appointments' => Appointment::with('patient')->latest()->get(),
         ]);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'patient_id'     => 'required|exists:patients,id',
-            'doctor_id'      => 'required|exists:staff,id',
-            'diagnosis'      => 'required|string|max:255',
-            'procedure'      => 'required|string|max:255',
-            'treatment_date' => 'required|date',
-            'notes'          => 'nullable|string|max:1000',
+            'patient_id'      => 'required|exists:patients,id',
+            'doctor_id'       => 'required|exists:staff,id',
+            'appointment_id'  => 'nullable|exists:appointments,id',
+            'diagnosis'       => 'required|string|max:255',
+            'procedure'       => 'required|string|max:255',
+            'treatment_date'  => 'required|date',
+            'notes'           => 'nullable|string|max:1000',
         ]);
 
         Treatment::create($validated);
@@ -44,28 +55,30 @@ class TreatmentController extends Controller
 
     public function show(Treatment $treatment)
     {
-        $treatment->load(['patient', 'doctor']);
+        $treatment->load(['patient', 'doctor', 'appointment']);
         return view('treatments.show', compact('treatment'));
     }
 
     public function edit(Treatment $treatment)
     {
         return view('treatments.edit', [
-            'treatment' => $treatment,
-            'patients'  => Patient::orderBy('name')->get(),
-            'doctors'   => Staff::where('role', 'Doctor')->orderBy('name')->get(),
+            'treatment'    => $treatment,
+            'patients'     => Patient::orderBy('first_name')->get(),
+            'doctors'      => Staff::where('role', 'Doctor')->orderBy('first_name')->get(),
+            'appointments' => Appointment::with('patient')->latest()->get(),
         ]);
     }
 
     public function update(Request $request, Treatment $treatment)
     {
         $validated = $request->validate([
-            'patient_id'     => 'required|exists:patients,id',
-            'doctor_id'      => 'required|exists:staff,id',
-            'diagnosis'      => 'required|string|max:255',
-            'procedure'      => 'required|string|max:255',
-            'treatment_date' => 'required|date',
-            'notes'          => 'nullable|string|max:1000',
+            'patient_id'      => 'required|exists:patients,id',
+            'doctor_id'       => 'required|exists:staff,id',
+            'appointment_id'  => 'nullable|exists:appointments,id',
+            'diagnosis'       => 'required|string|max:255',
+            'procedure'       => 'required|string|max:255',
+            'treatment_date'  => 'required|date',
+            'notes'           => 'nullable|string|max:1000',
         ]);
 
         $treatment->update($validated);

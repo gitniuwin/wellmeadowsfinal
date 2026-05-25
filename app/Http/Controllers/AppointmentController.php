@@ -9,22 +9,30 @@ use Illuminate\Http\Request;
 
 class AppointmentController extends Controller
 {
-    public function index()
-    {
-        $appointments = Appointment::with(['patient', 'doctor'])
-            ->latest('appointment_date')
-            ->paginate(10);
+public function index()
+{
+    $appointments = Appointment::with(['patient', 'doctor'])
+        ->latest('appointment_date')
+        ->paginate(10);
 
-        return view('appointments.index', [
-            'appointments'      => $appointments,
-            'totalAppointments' => Appointment::count(),
-            'scheduled'         => Appointment::where('status', 'scheduled')->count(),
-            'completed'         => Appointment::where('status', 'completed')->count(),
-            'cancelled'         => Appointment::where('status', 'cancelled')->count(),
-            'patients'          => Patient::orderBy('name')->get(),
-            'doctors'           => Staff::where('role', 'Doctor')->orderBy('name')->get(),
-        ]);
-    }
+    $treatments = \App\Models\Treatment::with(['patient', 'doctor'])
+        ->latest('treatment_date')
+        ->paginate(10);
+
+    return view('appointments.index', [
+        'appointments'      => $appointments,
+        'totalAppointments' => Appointment::count(),
+        'scheduled'         => Appointment::where('status', 'scheduled')->count(),
+        'completed'         => Appointment::where('status', 'completed')->count(),
+        'cancelled'         => Appointment::where('status', 'cancelled')->count(),
+        'treatments'        => $treatments,
+        'totalTreatments'   => \App\Models\Treatment::count(),
+        'activeDiagnoses'   => \App\Models\Treatment::whereNotNull('diagnosis')->count(),
+        'proceduresToday'   => \App\Models\Treatment::whereDate('treatment_date', today())->count(),
+        'patients'          => \App\Models\Patient::orderBy('first_name')->get(),
+        'doctors'           => \App\Models\Staff::where('role', 'Doctor')->orderBy('first_name')->get(),
+    ]);
+}
 
     public function store(Request $request)
     {
@@ -45,16 +53,24 @@ class AppointmentController extends Controller
 
     public function show(Appointment $appointment)
     {
-        $appointment->load(['patient', 'doctor']);
+        $appointment->load(['patient', 'doctor', 'treatments']);
         return view('appointments.show', compact('appointment'));
+    }
+
+    public function create()
+    {
+        return view('appointments.create', [
+            'patients' => Patient::orderBy('first_name')->get(),
+            'doctors'  => Staff::where('role', 'Doctor')->orderBy('first_name')->get(),
+        ]);
     }
 
     public function edit(Appointment $appointment)
     {
         return view('appointments.edit', [
             'appointment' => $appointment,
-            'patients'    => Patient::orderBy('name')->get(),
-            'doctors'     => Staff::where('role', 'Doctor')->orderBy('name')->get(),
+            'patients'    => Patient::orderBy('first_name')->get(),
+            'doctors'     => Staff::where('role', 'Doctor')->orderBy('first_name')->get(),
         ]);
     }
 

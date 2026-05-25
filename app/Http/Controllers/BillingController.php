@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 
 class BillingController extends Controller
 {
-    // Auto-marks overdue bills and returns stats array
     private function getStats(): array
     {
         Bill::where('status', 'pending')
@@ -32,33 +31,30 @@ class BillingController extends Controller
         ];
     }
 
-    public function index(){
-    $stats = $this->getStats();
+    public function index()
+    {
+        $stats = $this->getStats();
 
-    $monthly = Bill::selectRaw(
-        "strftime('%m', created_at) as month_num,
-         strftime('%Y', created_at) as year,
-         COUNT(*) as count,
-         SUM(total_amount) as total,
-         SUM(CASE WHEN status='paid' THEN total_amount ELSE 0 END) as collected"
-    )
-    ->groupByRaw("strftime('%Y', created_at), strftime('%m', created_at)")
-    ->orderByRaw("strftime('%Y', created_at) DESC, strftime('%m', created_at) DESC")
-    ->get()
-    ->map(function($row) {
-        $months = [
-            '01'=>'January','02'=>'February','03'=>'March','04'=>'April',
-            '05'=>'May','06'=>'June','07'=>'July','08'=>'August',
-            '09'=>'September','10'=>'October','11'=>'November','12'=>'December'
-        ];
-        $row->month = ($months[$row->month_num] ?? $row->month_num) . ' ' . $row->year;
-        return $row;
-    });
+        $monthly = Bill::latest()
+            ->get()
+            ->groupBy(fn ($bill) => $bill->created_at->format('Y-m'))
+            ->map(function ($bills) {
+                $month = $bills->first()->created_at;
+                return (object) [
+                    'month_num' => $month->format('m'),
+                    'year'      => $month->format('Y'),
+                    'month'     => $month->format('F Y'),
+                    'count'     => $bills->count(),
+                    'total'     => $bills->sum('total_amount'),
+                    'collected' => $bills->where('status', 'paid')->sum('total_amount'),
+                ];
+            })
+            ->values();
 
-    $recent = Bill::with('payments')->latest()->take(5)->get();
+        $recent = Bill::with('payments')->latest()->take(5)->get();
 
-    return view('billing.index', compact('stats', 'monthly', 'recent'));
-}
+        return view('billing.index', compact('stats', 'monthly', 'recent'));
+    }
 
     public function allBills()
     {
@@ -93,7 +89,6 @@ class BillingController extends Controller
             'due_date'     => 'required|date',
         ]);
 
-        // Auto-set status based on due date — never trust user input for this
         $status = Carbon::parse($request->due_date)->isPast() ? 'overdue' : 'pending';
 
         Bill::create([
@@ -119,7 +114,6 @@ class BillingController extends Controller
 
         $payments = Payment::with('bill')->latest()->get();
 
-        // Only show bills that still have an outstanding balance
         $bills = Bill::with('payments')
                      ->whereIn('status', ['pending', 'overdue'])
                      ->get()
@@ -140,7 +134,6 @@ class BillingController extends Controller
 
         $bill = Bill::with('payments')->findOrFail($request->bill_id);
 
-        // Guard: already fully paid
         if ($bill->status === 'paid') {
             return redirect('/payments')
                 ->withErrors(['amount' => 'This bill has already been paid in full.'])
@@ -149,7 +142,6 @@ class BillingController extends Controller
 
         $remaining = $bill->remaining_balance;
 
-        // Guard: payment exceeds remaining balance
         if ((float) $request->amount > $remaining) {
             return redirect('/payments')
                 ->withErrors(['amount' => 'Payment of ₱' . number_format($request->amount, 2) . ' exceeds the remaining balance of ₱' . number_format($remaining, 2) . '.'])
@@ -163,7 +155,6 @@ class BillingController extends Controller
             'processed_by' => $request->processed_by,
         ]);
 
-        // Re-check total paid after inserting
         $totalPaid = (float) $bill->payments()->sum('amount') + (float) $request->amount;
 
         if ($totalPaid >= (float) $bill->total_amount) {

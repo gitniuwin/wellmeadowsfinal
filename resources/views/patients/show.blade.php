@@ -46,6 +46,10 @@
   .link-label { font-size:13px; color:var(--text); }
   .link-action { font-size:12px; color:var(--sky); text-decoration:none; font-weight:500; }
   .link-action:hover { text-decoration:underline; }
+  .record-list { margin-top:10px; display:flex; flex-direction:column; gap:8px; }
+  .record-item { background:var(--off-white); border:1px solid var(--border); border-radius:8px; padding:10px 12px; font-size:12px; }
+  .record-main { font-weight:600; color:var(--navy-dark); margin-bottom:2px; }
+  .record-meta { color:var(--muted); }
 </style>
 @endpush
 
@@ -125,8 +129,23 @@
     </div>
     <div class="link-row">
       <span class="link-label">Treatments & Diagnoses</span>
-      <a href="{{ route('treatments.index') }}" class="link-action">View all →</a>
+      <a href="{{ route('treatments.index', ['patient_id' => $patient->id]) }}" class="link-action">View patient treatments →</a>
     </div>
+    @if($patient->treatments->isNotEmpty())
+      <div class="record-list">
+        @foreach($patient->treatments->sortByDesc('treatment_date')->take(4) as $treatment)
+          <div class="record-item">
+            <div class="record-main">{{ $treatment->diagnosis }} — {{ $treatment->procedure }}</div>
+            <div class="record-meta">
+              {{ \Carbon\Carbon::parse($treatment->treatment_date)->format('M d, Y') }}
+              @if($treatment->doctor)
+                · Dr. {{ $treatment->doctor->last_name }}
+              @endif
+            </div>
+          </div>
+        @endforeach
+      </div>
+    @endif
     <div class="link-row">
       <span class="link-label">Treatment History</span>
       <a href="{{ route('history.index', ['patient_id' => $patient->id]) }}" class="link-action">View history →</a>

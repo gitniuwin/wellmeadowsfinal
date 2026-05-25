@@ -64,6 +64,6 @@ class HospitalSeeder extends Seeder
             ]);
         }
 
-        $this->command->info('✅ Appointments, Treatments, and Bills seeded successfully!');
+        $this->command->info('Appointments, Treatments, and Bills seeded successfully!');
     }
 }

@@ -1,5 +1,8 @@
 @extends('layouts.app')
+<<<<<<< HEAD
 @section('page-title', 'Appointments')
+=======
+>>>>>>> 44bce9d8edd4577e522ec33c9de839160b80dc14
 @section('page-title', 'Appointment & Treatment')
 
 @section('topbar-action')
@@ -7,7 +10,11 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     New Appointment
   </button>
+<<<<<<< HEAD
   <a href="{{ route('treatments.create') }}" class="add-btn" style="background:var(--sky); margin-left:8px; text-decoration:none;">
+=======
+  <button class="add-btn" id="openTreatBtn" style="background:var(--sky); margin-left:8px;">
+>>>>>>> 44bce9d8edd4577e522ec33c9de839160b80dc14
     <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     Record Treatment
   </a>
@@ -327,6 +334,7 @@
     </form>
   </div>
 </div>
+
 @endsection
 
 @push('scripts')
@@ -352,7 +360,14 @@
   document.getElementById('closeApptModal').onclick = () => document.getElementById('addApptModal').classList.remove('open');
   document.getElementById('cancelApptModal').onclick = () => document.getElementById('addApptModal').classList.remove('open');
 
+<<<<<<< HEAD
   document.getElementById('openTreatBtn').onclick = () => { document.getElementById('addTreatmentModal').classList.add('open'); switchTab('treatments', document.querySelectorAll('.tab-btn')[1]); };
+=======
+  document.getElementById('openTreatBtn').onclick = () => {
+    document.getElementById('addTreatmentModal').classList.add('open');
+    switchTab('treatments', document.querySelectorAll('.tab-btn')[1]);
+  };
+>>>>>>> 44bce9d8edd4577e522ec33c9de839160b80dc14
   document.getElementById('closeTreatModal').onclick = () => document.getElementById('addTreatmentModal').classList.remove('open');
   document.getElementById('cancelTreatModal').onclick = () => document.getElementById('addTreatmentModal').classList.remove('open');
 

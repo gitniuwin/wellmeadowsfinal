@@ -176,9 +176,6 @@
 <div style="padding:28px;">
 
     {{-- Flash Messages --}}
-    @if(session('success'))
-      <div class="flash success">{{ session('success') }}</div>
-    @endif
     @if($errors->any())
       <div class="flash error">{{ $errors->first() }}</div>
     @endif
@@ -265,7 +262,7 @@
                   @endif
                   <button class="action-btn" onclick="openViewModal({{ $s->id }})">View</button>
                   @if(auth()->user()->role !== 'Charge Nurse')
-                  <button class="action-btn del" onclick="openDeleteModal({{ $s->id }}, '{{ $s->full_name }}')">Remove</button>
+                  <button class="action-btn del" onclick="openDeleteModal({{ $s->id }}, @js($s->full_name))">Remove</button>
                   @endif
                 </div>
               </td>
@@ -334,7 +331,7 @@
             @endforeach
           </div>
           @if(auth()->user()->role !== 'Charge Nurse')
-          <button class="action-btn" onclick="openScheduleModal({{ $s->id }}, '{{ $s->full_name }}', '{{ $s->shift }}', {{ json_encode($sched) }})">Edit</button>
+          <button class="action-btn" onclick="openScheduleModal({{ $s->id }}, @js($s->full_name), @js($s->shift), @js($sched))">Edit</button>
           @endif
         </div>
         @endforeach
@@ -353,7 +350,7 @@
             <div style="font-size:11px;color:var(--muted)">{{ $s->role }} · {{ $s->department }}</div>
           </div>
           @if(auth()->user()->role !== 'Charge Nurse')
-          <button class="action-btn" style="margin-left:auto;font-size:12px" onclick="openRespModal({{ $s->id }}, '{{ $s->full_name }}', {{ json_encode($s->responsibilities->pluck('description')) }})">Edit Responsibilities</button>
+          <button class="action-btn" style="margin-left:auto;font-size:12px" onclick="openRespModal({{ $s->id }}, @js($s->full_name), @js($s->responsibilities->pluck('description')->values()))">Edit Responsibilities</button>
           @endif
         </div>
         <ul class="resp-list">
@@ -388,7 +385,7 @@
           <div class="mfield"><label>Role</label>
             <select name="role" required>
               <option value="">Select role</option>
-              <option>Doctor</option><option>Nurse</option><option>Admin</option><option>Manager</option>
+              <option>Doctor</option><option>Nurse</option><option>Admin</option><option>Ward Manager</option>
             </select>
           </div>
           <div class="mfield"><label>Status</label>
@@ -444,7 +441,7 @@
         <div class="modal-row">
           <div class="mfield"><label>Role</label>
             <select name="role" id="edit-role" required>
-              <option>Doctor</option><option>Nurse</option><option>Admin</option><option>Manager</option>
+              <option>Doctor</option><option>Nurse</option><option>Admin</option><option>Ward Manager</option>
             </select>
           </div>
           <div class="mfield"><label>Status</label>
@@ -666,10 +663,17 @@
     const container = document.getElementById('resp-inputs');
     const row = document.createElement('div');
     row.className = 'resp-input-row';
-    row.innerHTML = `
-      <input type="text" name="responsibilities[]" value="${value}" placeholder="Enter responsibility…">
-      <button type="button" class="remove-resp" onclick="this.parentElement.remove()">✕</button>
-    `;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.name = 'responsibilities[]';
+    input.value = value;
+    input.placeholder = 'Enter responsibility...';
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'remove-resp';
+    button.textContent = 'x';
+    button.addEventListener('click', () => row.remove());
+    row.append(input, button);
     container.appendChild(row);
   }
 </script>

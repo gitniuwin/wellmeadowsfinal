@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Appointments')
+@section('page-title', 'Appointment & Treatment')
 
 @section('topbar-action')
   <button class="add-btn" id="openApptBtn">

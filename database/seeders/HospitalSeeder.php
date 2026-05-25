@@ -18,7 +18,7 @@ class HospitalSeeder extends Seeder
         $doctors  = Staff::where('role', 'Doctor')->get();
 
         if ($patients->isEmpty() || $doctors->isEmpty()) {
-            $this->command->warn('⚠ No patients or doctors found. Run PatientSeeder and StaffSeeder first.');
+            $this->command->warn('No patients or doctors found. Run PatientSeeder and StaffSeeder first.');
             return;
         }
 

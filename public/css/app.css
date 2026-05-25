@@ -203,6 +203,7 @@ a { text-decoration: none; color: inherit; }
     border-radius: var(--radius-sm);
     margin-bottom: 1rem;
     font-size: 13px;
+    .alert svg { width: 16px; height: 16px; flex-shrink: 0; }
 }
 .alert-success { background: var(--green-light); color: #1a7a46; border: 1px solid #a9dfbf; }
 .alert-error   { background: var(--red-light); color: var(--red); border: 1px solid #f5b7b1; }

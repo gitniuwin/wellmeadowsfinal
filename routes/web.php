@@ -61,14 +61,14 @@ Route::middleware('auth')->group(function () {
 
     // Module 5 — Billing & Reporting
     Route::get('/billing',         [BillingController::class, 'index'])->name('billing.index');
-    Route::get('/billing/all',     [BillingController::class, 'allBills']);
-    Route::get('/billing/create',  [BillingController::class, 'create']);
-    Route::post('/billing',        [BillingController::class, 'store']);
-    Route::delete('/billing/{id}', [BillingController::class, 'destroy']);
-    Route::get('/payments',        [BillingController::class, 'payments']);
-    Route::post('/payments',       [BillingController::class, 'recordPayment']);
-    Route::get('/outstanding',     [BillingController::class, 'outstanding']);
-    Route::get('/reports',         [BillingController::class, 'reports']);
+    Route::get('/billing/all',     [BillingController::class, 'allBills'])->name('billing.all');
+    Route::get('/billing/create',  [BillingController::class, 'create'])->name('billing.create');
+    Route::post('/billing',        [BillingController::class, 'store'])->name('billing.store');
+    Route::delete('/billing/{id}', [BillingController::class, 'destroy'])->name('billing.destroy');
+    Route::get('/payments',        [BillingController::class, 'payments'])->name('billing.payments');
+    Route::post('/payments',       [BillingController::class, 'recordPayment'])->name('billing.recordPayment');
+    Route::get('/outstanding',     [BillingController::class, 'outstanding'])->name('billing.outstanding');
+    Route::get('/reports',         [BillingController::class, 'reports'])->name('billing.reports');
 
     // Module 4 — Appointment & Treatment Management
     Route::resource('appointments', AppointmentController::class);

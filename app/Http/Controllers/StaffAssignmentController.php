@@ -12,20 +12,8 @@ class StaffAssignmentController extends Controller
 {
     public function index()
     {
-        $assignments = StaffAssignment::with(['staff', 'patient', 'treatment'])
-            ->latest('assigned_date')
-            ->paginate(10);
-
-        return view('staff.index', [
-            'assignments'        => $assignments,
-            'totalDoctors'       => Staff::where('role', 'Doctor')->count(),
-            'totalNurses'        => Staff::where('role', 'Nurse')->count(),
-            'assignedToday'      => StaffAssignment::whereDate('assigned_date', today())->count(),
-            'pendingAssignments' => StaffAssignment::whereNull('treatment_id')->count(),
-            'staff'              => Staff::orderBy('name')->get(),
-            'patients'           => Patient::orderBy('name')->get(),
-            'treatments'         => Treatment::with('patient')->latest()->get(),
-        ]);
+        return redirect()->route('treatments.index')
+            ->with('success', 'Staff assignments are managed when recording a treatment.');
     }
 
     public function store(Request $request)
@@ -39,7 +27,7 @@ class StaffAssignmentController extends Controller
 
         StaffAssignment::create($validated);
 
-        return redirect()->route('staff-assignment.index')
+        return redirect()->route('treatments.index')
             ->with('success', 'Staff assigned successfully.');
     }
 

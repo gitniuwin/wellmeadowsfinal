@@ -408,7 +408,9 @@
           <div class="mfield"><label>Ward</label>
             <select name="ward">
               <option value="">None</option>
-              <option>Ward A</option><option>Ward B</option><option>Ward C</option><option>ICU</option>
+              @foreach($wards as $ward)
+                <option value="{{ $ward }}">{{ $ward }}</option>
+              @endforeach
             </select>
           </div>
         </div>
@@ -463,7 +465,9 @@
           <div class="mfield"><label>Ward</label>
             <select name="ward" id="edit-ward">
               <option value="">None</option>
-              <option>Ward A</option><option>Ward B</option><option>Ward C</option><option>ICU</option>
+              @foreach($wards as $ward)
+                <option value="{{ $ward }}">{{ $ward }}</option>
+              @endforeach
             </select>
           </div>
         </div>

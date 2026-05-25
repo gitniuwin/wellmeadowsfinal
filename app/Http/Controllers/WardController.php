@@ -4,14 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Ward;
 use App\Models\Bed;
+use App\Models\Bill;
 use App\Models\Patient;
 use Illuminate\Http\Request;
 
 class WardController extends Controller
 {
-    // ───────────────────────────────────────────
-    // Module 3 Main Page — Ward Overview
-    // ───────────────────────────────────────────
     public function index(Request $request)
     {
         $filter = $request->get('filter', 'all');
@@ -26,25 +24,20 @@ class WardController extends Controller
 
         $wards = $query->get();
 
-        // Apply availability filter after loading (uses computed attribute)
         if ($filter !== 'all') {
             $wards = $wards->filter(fn($w) => $w->availability_status === $filter)->values();
         }
 
-        // Summary stats
-        $totalBeds     = Bed::count();
-        $occupiedBeds  = Bed::where('status', 'occupied')->count();
-        $vacantBeds    = Bed::where('status', 'vacant')->count();
-        $otherBeds     = Bed::whereIn('status', ['reserved', 'maintenance'])->count();
+        $totalBeds    = Bed::count();
+        $occupiedBeds = Bed::where('status', 'occupied')->count();
+        $vacantBeds   = Bed::where('status', 'vacant')->count();
+        $otherBeds    = Bed::whereIn('status', ['reserved', 'maintenance'])->count();
 
         return view('wards.index', compact(
             'wards', 'totalBeds', 'occupiedBeds', 'vacantBeds', 'otherBeds', 'filter', 'search'
         ));
     }
 
-    // ───────────────────────────────────────────
-    // Ward Detail — all beds for one ward
-    // ───────────────────────────────────────────
     public function show(Ward $ward)
     {
         $ward->load(['beds.patient']);
@@ -55,18 +48,12 @@ class WardController extends Controller
         return view('wards.show', compact('ward', 'admittedPatients'));
     }
 
-    // ───────────────────────────────────────────
-    // Create Ward Form
-    // ───────────────────────────────────────────
     public function create()
     {
         $types = ['General', 'ICU', 'Pediatric', 'Maternity', 'Surgical', 'Orthopedic', 'Cardiac', 'Oncology', 'Emergency'];
         return view('wards.create', compact('types'));
     }
 
-    // ───────────────────────────────────────────
-    // Store New Ward + auto-generate beds
-    // ───────────────────────────────────────────
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -80,7 +67,6 @@ class WardController extends Controller
 
         $ward = Ward::create($validated);
 
-        // Auto-generate bed records based on capacity
         for ($i = 1; $i <= $ward->capacity; $i++) {
             Bed::create([
                 'ward_id'    => $ward->id,
@@ -92,18 +78,12 @@ class WardController extends Controller
         return redirect()->route('wards.index')->with('success', "Ward \"{$ward->name}\" created with {$ward->capacity} beds.");
     }
 
-    // ───────────────────────────────────────────
-    // Edit Ward Form
-    // ───────────────────────────────────────────
     public function edit(Ward $ward)
     {
         $types = ['General', 'ICU', 'Pediatric', 'Maternity', 'Surgical', 'Orthopedic', 'Cardiac', 'Oncology', 'Emergency'];
         return view('wards.edit', compact('ward', 'types'));
     }
 
-    // ───────────────────────────────────────────
-    // Update Ward
-    // ───────────────────────────────────────────
     public function update(Request $request, Ward $ward)
     {
         $validated = $request->validate([
@@ -118,7 +98,6 @@ class WardController extends Controller
         $oldCapacity = $ward->capacity;
         $ward->update($validated);
 
-        // If capacity increased, add more beds
         if ($validated['capacity'] > $oldCapacity) {
             for ($i = $oldCapacity + 1; $i <= $validated['capacity']; $i++) {
                 Bed::firstOrCreate(
@@ -131,9 +110,6 @@ class WardController extends Controller
         return redirect()->route('wards.show', $ward)->with('success', 'Ward updated successfully.');
     }
 
-    // ───────────────────────────────────────────
-    // Soft-delete (deactivate) Ward
-    // ───────────────────────────────────────────
     public function destroy(Ward $ward)
     {
         if ($ward->beds()->where('status', 'occupied')->count() > 0) {
@@ -143,9 +119,6 @@ class WardController extends Controller
         return redirect()->route('wards.index')->with('success', "Ward \"{$ward->name}\" has been deactivated.");
     }
 
-    // ───────────────────────────────────────────
-    // Assign Bed to Patient
-    // ───────────────────────────────────────────
     public function assignBed(Request $request)
     {
         $validated = $request->validate([
@@ -153,7 +126,7 @@ class WardController extends Controller
             'patient_id' => 'required|exists:patients,id',
         ]);
 
-        $bed = Bed::findOrFail($validated['bed_id']);
+        $bed     = Bed::findOrFail($validated['bed_id']);
         $patient = Patient::findOrFail($validated['patient_id']);
 
         if ($bed->status !== 'vacant') {
@@ -175,13 +148,27 @@ class WardController extends Controller
         return back()->with('success', "Bed {$bed->bed_number} assigned to {$patient->full_name}.");
     }
 
-    // ───────────────────────────────────────────
-    // Release Bed (discharge patient)
-    // ───────────────────────────────────────────
-    public function releaseBed(Bed $bed)
+    /**
+     * Release bed — checks for unpaid bills first.
+     * If unpaid bills exist, redirects to discharge confirmation.
+     */
+    public function releaseBed(Request $request, Bed $bed)
     {
-        if ($bed->patient) {
-            $bed->patient->update(['is_admitted' => false]);
+        $patient = $bed->patient;
+
+        if ($patient) {
+            // Check for unpaid bills
+            $unpaidBills = Bill::where('patient_name', $patient->full_name)
+                ->whereIn('status', ['pending', 'overdue'])
+                ->get();
+
+            // Warn if unpaid bills and admin hasn't confirmed force-release
+            if ($unpaidBills->count() > 0 && !$request->boolean('force_release')) {
+                return redirect()->route('patients.confirm-discharge', $patient)
+                    ->with('warning', 'Patient has unpaid bills. Please review before releasing the bed.');
+            }
+
+            $patient->update(['is_admitted' => false]);
         }
 
         $bed->update([
@@ -194,9 +181,6 @@ class WardController extends Controller
         return back()->with('success', "Bed {$bed->bed_number} has been released.");
     }
 
-    // ───────────────────────────────────────────
-    // Update Bed Status (maintenance / reserve)
-    // ───────────────────────────────────────────
     public function updateBedStatus(Request $request, Bed $bed)
     {
         $validated = $request->validate([

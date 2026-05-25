@@ -2,6 +2,12 @@
 
 @section('content')
 
+<div class="tabs-bar">
+    <a href="{{ route('appointments.index') }}" class="tab">Appointments</a>
+    <a href="{{ route('treatments.index') }}" class="tab">Treatments</a>
+    <a href="{{ route('history.index') }}" class="tab active">Patient History</a>
+</div>
+
 <div class="grid grid-cols-3 gap-6">
     {{-- Patient Search Panel --}}
     <div class="col-span-1">

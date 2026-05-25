@@ -193,7 +193,7 @@
             <input type="password" name="password" required placeholder="••••••••">
           </div>
 
-          <div class="forgot"><a href="#">Forgot password?</a></div>
+          <div class="forgot"><a href="javascript:void(0)" onclick="alert('Please ask the system administrator or HR staff to reset your account password.')">Forgot password?</a></div>
 
           <div class="field" style="flex-direction:row;align-items:center;gap:8px;margin-bottom:16px">
             <input type="checkbox" name="remember" id="remember" style="width:auto;height:auto;accent-color:var(--sky)">
@@ -204,7 +204,7 @@
         </form>
 
         <div class="switch-text">
-          No account? <a href="#" onclick="switchTo('register')">Register here</a>
+          No account? <a href="javascript:void(0)" onclick="switchTo('register')">Register here</a>
         </div>
       </div>
 
@@ -303,7 +303,7 @@
         </form>
 
         <div class="switch-text">
-          Already registered? <a href="#" onclick="switchTo('login')">Sign in</a>
+          Already registered? <a href="javascript:void(0)" onclick="switchTo('login')">Sign in</a>
         </div>
       </div>
 

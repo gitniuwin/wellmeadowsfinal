@@ -104,7 +104,12 @@ class PatientController extends Controller
     {
         // Release the bed if assigned
         if ($patient->bed) {
-            $patient->bed->update(['patient_id' => null, 'status' => 'available']);
+            $patient->bed->update([
+                'patient_id' => null,
+                'status' => 'vacant',
+                'assigned_at' => null,
+                'notes' => null,
+            ]);
         }
 
         $patient->update(['is_admitted' => false]);

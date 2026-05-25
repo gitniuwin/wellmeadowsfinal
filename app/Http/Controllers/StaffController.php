@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Staff;
 use App\Models\Schedule;
 use App\Models\Responsibility;
+use App\Models\Ward;
 
 class StaffController extends Controller
 {
@@ -54,6 +55,7 @@ class StaffController extends Controller
             'Emergency', 'Cardiology', 'Pediatrics',
             'Orthopedics', 'Neurology', 'General Medicine', 'Administration'
         ];
+        $wards = Ward::where('is_active', true)->orderBy('name')->pluck('name');
 
         $deptSummary = [];
         foreach ($departments as $dept) {
@@ -73,7 +75,7 @@ class StaffController extends Controller
 
         return view('staff.index', compact(
             'staff', 'allStaff', 'staffJson',
-            'departments', 'deptSummary', 'counts', 'user'
+            'departments', 'wards', 'deptSummary', 'counts', 'user'
         ));
     }
 

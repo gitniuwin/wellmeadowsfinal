@@ -21,8 +21,8 @@ class AppointmentController extends Controller
             'scheduled'         => Appointment::where('status', 'scheduled')->count(),
             'completed'         => Appointment::where('status', 'completed')->count(),
             'cancelled'         => Appointment::where('status', 'cancelled')->count(),
-            'patients'          => Patient::orderBy('name')->get(),
-            'doctors'           => Staff::where('role', 'Doctor')->orderBy('name')->get(),
+            'patients' => Patient::orderBy('first_name')->get(),
+            'doctors'  => Staff::where('role', 'Doctor')->orderBy('first_name')->get(),
         ]);
     }
 
@@ -73,6 +73,18 @@ class AppointmentController extends Controller
 
         return redirect()->route('appointments.index')
             ->with('success', 'Appointment updated successfully.');
+    }
+
+    public function updateStatus(Request $request, Appointment $appointment)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:scheduled,completed,cancelled',
+        ]);
+
+        $appointment->update($validated);
+
+        return redirect()->route('appointments.index')
+            ->with('success', 'Appointment status updated.');
     }
 
     public function destroy(Appointment $appointment)

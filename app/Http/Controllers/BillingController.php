@@ -6,6 +6,7 @@ use App\Models\Bill;
 use App\Models\Payment;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class BillingController extends Controller
 {
@@ -32,33 +33,45 @@ class BillingController extends Controller
         ];
     }
 
-    public function index(){
-    $stats = $this->getStats();
+    public function index()
+    {
+        $stats = $this->getStats();
+        $driver = DB::getDriverName();
 
-    $monthly = Bill::selectRaw(
-        "strftime('%m', created_at) as month_num,
-         strftime('%Y', created_at) as year,
-         COUNT(*) as count,
-         SUM(total_amount) as total,
-         SUM(CASE WHEN status='paid' THEN total_amount ELSE 0 END) as collected"
-    )
-    ->groupByRaw("strftime('%Y', created_at), strftime('%m', created_at)")
-    ->orderByRaw("strftime('%Y', created_at) DESC, strftime('%m', created_at) DESC")
-    ->get()
-    ->map(function($row) {
-        $months = [
-            '01'=>'January','02'=>'February','03'=>'March','04'=>'April',
-            '05'=>'May','06'=>'June','07'=>'July','08'=>'August',
-            '09'=>'September','10'=>'October','11'=>'November','12'=>'December'
-        ];
-        $row->month = ($months[$row->month_num] ?? $row->month_num) . ' ' . $row->year;
-        return $row;
-    });
+        if ($driver === 'pgsql') {
+            $dateSelect = "EXTRACT(MONTH FROM created_at)::int as month_num, EXTRACT(YEAR FROM created_at)::int as year";
+            $groupBy = "EXTRACT(YEAR FROM created_at), EXTRACT(MONTH FROM created_at)";
+            $orderBy = "EXTRACT(YEAR FROM created_at) DESC, EXTRACT(MONTH FROM created_at) DESC";
+        } elseif ($driver === 'sqlite') {
+            $dateSelect = "CAST(strftime('%m', created_at) AS INTEGER) as month_num, CAST(strftime('%Y', created_at) AS INTEGER) as year";
+            $groupBy = "strftime('%Y', created_at), strftime('%m', created_at)";
+            $orderBy = "strftime('%Y', created_at) DESC, strftime('%m', created_at) DESC";
+        } else {
+            $dateSelect = "MONTH(created_at) as month_num, YEAR(created_at) as year";
+            $groupBy = "YEAR(created_at), MONTH(created_at)";
+            $orderBy = "YEAR(created_at) DESC, MONTH(created_at) DESC";
+        }
 
-    $recent = Bill::with('payments')->latest()->take(5)->get();
+        $monthly = Bill::selectRaw(
+            "$dateSelect,
+             COUNT(*) as count,
+             SUM(total_amount) as total,
+             SUM(CASE WHEN status='paid' THEN total_amount ELSE 0 END) as collected"
+        )
+            ->groupByRaw($groupBy)
+            ->orderByRaw($orderBy)
+            ->get()
+            ->map(function ($row) {
+                $row->month = Carbon::createFromDate((int) $row->year, (int) $row->month_num, 1)
+                    ->format('F Y');
 
-    return view('billing.index', compact('stats', 'monthly', 'recent'));
-}
+                return $row;
+            });
+
+        $recent = Bill::with('payments')->latest()->take(5)->get();
+
+        return view('billing.index', compact('stats', 'monthly', 'recent'));
+    }
 
     public function allBills()
     {
@@ -164,7 +177,7 @@ class BillingController extends Controller
         ]);
 
         // Re-check total paid after inserting
-        $totalPaid = (float) $bill->payments()->sum('amount') + (float) $request->amount;
+        $totalPaid = (float) $bill->payments()->sum('amount');
 
         if ($totalPaid >= (float) $bill->total_amount) {
             $bill->update(['status' => 'paid']);

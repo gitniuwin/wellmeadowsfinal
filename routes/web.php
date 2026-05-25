@@ -10,6 +10,7 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\TreatmentController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\StaffAssignmentController;
+use App\Http\Controllers\ScheduleController;
 
 // Redirect root to login
 Route::get('/', function () {
@@ -35,6 +36,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/staff',           [StaffController::class, 'index'])->name('staff.index');
     Route::get('/staff/search',    [StaffController::class, 'search'])->name('staff.search');
     Route::get('/staff/{id}/edit', [StaffController::class, 'edit'])->name('staff.edit');
+    Route::get('/schedules', [ScheduleController::class, 'index'])->name('schedules.index');
 
     // Staff — Medical Director & HR only can write
     Route::middleware('role:Medical Director,Personnel/HR Staff')->group(function () {
@@ -61,18 +63,19 @@ Route::middleware('auth')->group(function () {
 
     // Module 5 — Billing & Reporting
     Route::get('/billing',         [BillingController::class, 'index'])->name('billing.index');
-    Route::get('/billing/all',     [BillingController::class, 'allBills']);
-    Route::get('/billing/create',  [BillingController::class, 'create']);
-    Route::post('/billing',        [BillingController::class, 'store']);
-    Route::delete('/billing/{id}', [BillingController::class, 'destroy']);
-    Route::get('/payments',        [BillingController::class, 'payments']);
-    Route::post('/payments',       [BillingController::class, 'recordPayment']);
-    Route::get('/outstanding',     [BillingController::class, 'outstanding']);
-    Route::get('/reports',         [BillingController::class, 'reports']);
+    Route::get('/billing/all',     [BillingController::class, 'allBills'])->name('billing.all');
+    Route::get('/billing/create',  [BillingController::class, 'create'])->name('billing.create');
+    Route::post('/billing',        [BillingController::class, 'store'])->name('billing.store');
+    Route::delete('/billing/{id}', [BillingController::class, 'destroy'])->name('billing.destroy');
+    Route::get('/payments',        [BillingController::class, 'payments'])->name('payments.index');
+    Route::post('/payments',       [BillingController::class, 'recordPayment'])->name('payments.store');
+    Route::get('/outstanding',     [BillingController::class, 'outstanding'])->name('billing.outstanding');
+    Route::get('/reports',         [BillingController::class, 'reports'])->name('billing.reports');
 
     // Module 4 — Appointment & Treatment Management
-    Route::resource('appointments', AppointmentController::class);
-    Route::resource('treatments', TreatmentController::class);
+    Route::resource('appointments', AppointmentController::class)->only(['index', 'store', 'destroy']);
+    Route::patch('/appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('appointments.status');
+    Route::resource('treatments', TreatmentController::class)->only(['index', 'store', 'destroy']);
     Route::get('/history', [HistoryController::class, 'index'])->name('history.index');
     Route::get('/history/{patient}', [HistoryController::class, 'show'])->name('history.show');
     Route::resource('staff-assignment', StaffAssignmentController::class)

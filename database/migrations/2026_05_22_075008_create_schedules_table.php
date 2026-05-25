@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('schedules', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('staff_id')->constrained()->onDelete('cascade');
+            $table->foreignId('staff_id')->constrained('staff')->onDelete('cascade');
             $table->boolean('mon')->default(false);
             $table->boolean('tue')->default(false);
             $table->boolean('wed')->default(false);

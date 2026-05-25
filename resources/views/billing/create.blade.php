@@ -2,7 +2,7 @@
 @section('page-title', 'New Bill')
 
 @section('topbar-action')
-    <a href="/billing" class="back-btn">
+    <a href="/billing/all" class="back-btn">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
         Back
     </a>
@@ -33,9 +33,15 @@
     <form method="POST" action="/billing">
         @csrf
         <div class="form-group">
-            <label class="form-label">Patient Name</label>
-            <input type="text" name="patient_name" required placeholder="e.g. Maria Santos"
-                   value="{{ old('patient_name') }}" class="form-input">
+            <label class="form-label">Patient</label>
+            <select name="patient_id" class="form-input" required>
+            <option value="">— Select a patient —</option>
+            @foreach($patients as $patient)
+                <option value="{{ $patient->id }}" {{ old('patient_id') == $patient->id ? 'selected' : '' }}>
+                {{ $patient->full_name }} ({{ $patient->patient_number }})
+            </option>
+            @endforeach
+            </select>
         </div>
         <div class="form-row">
             <div class="form-group">

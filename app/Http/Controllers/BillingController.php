@@ -77,27 +77,30 @@ class BillingController extends Controller
 
     public function create()
     {
-        return view('billing.create');
+        $patients = \App\Models\Patient::orderBy('last_name')->get();
+        return view('billing.create', compact('patients'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'patient_name' => 'required|string|max:255',
-            'service_type' => 'required|in:room,treatment,services',
-            'total_amount' => 'required|numeric|min:0.01',
-            'due_date'     => 'required|date',
-        ]);
+    $request->validate([
+        'patient_id'   => 'required|exists:patients,id',
+        'service_type' => 'required|in:room,treatment,services',
+        'total_amount' => 'required|numeric|min:0.01',
+        'due_date'     => 'required|date',
+    ]);
 
         $status = Carbon::parse($request->due_date)->isPast() ? 'overdue' : 'pending';
+        $patient = \App\Models\Patient::findOrFail($request->patient_id);
 
         Bill::create([
-            'patient_name' => $request->patient_name,
-            'service_type' => $request->service_type,
-            'total_amount' => $request->total_amount,
-            'due_date'     => $request->due_date,
-            'status'       => $status,
-        ]);
+        'patient_id'   => $patient->id,
+        'patient_name' => $patient->full_name,
+        'service_type' => $request->service_type,
+        'total_amount' => $request->total_amount,
+        'due_date'     => $request->due_date,
+        'status'       => $status,
+    ]);
 
         return redirect('/billing')->with('success', 'Bill created successfully.');
     }

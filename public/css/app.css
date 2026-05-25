@@ -689,3 +689,97 @@ a { text-decoration: none; color: inherit; }
 .action-btn.del:hover { background:#FFF0F0; }
 
 .empty-state { padding:40px 20px; text-align:center; color:var(--muted,#6B7E9F); font-size:13px; }
+
+/* ══════════════════════════════════
+   Module 5 — Billing & Reporting
+   (also shared with staff module)
+══════════════════════════════════ */
+
+:root {
+    --navy: #1B2D5B;
+    --navy-dark: #111e3f;
+    --navy-light: #2a4080;
+    --sky: #5B9BD5;
+    --sky-light: #A8CBF0;
+    --sky-pale: #D6EAFA;
+    --off-white: #F4F8FC;
+    --muted: #6B7E9F;
+}
+
+/* Stat cards */
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+.stat-card { background: var(--navy); border-radius: 12px; padding: 18px 20px; color: white; }
+.stat-card.sky   { background: var(--sky); }
+.stat-card.teal  { background: #1B7A54; }
+.stat-card.light { background: white; border: 1px solid var(--border); color: var(--text); }
+.stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.65; margin-bottom: 8px; }
+.stat-value { font-family: 'Playfair Display', serif; font-size: 30px; line-height: 1; }
+.stat-sub   { font-size: 11px; opacity: 0.55; margin-top: 4px; }
+.stat-sub.green { color: #6ee7b7; opacity: 1; }
+.stat-sub.red   { color: #fca5a5; opacity: 1; }
+
+/* Tab bar */
+.tab-bar { display: flex; border-bottom: 1.5px solid var(--border); margin-bottom: 20px; }
+.tab { padding: 10px 18px; font-size: 13px; font-weight: 500; color: var(--muted); border-bottom: 2.5px solid transparent; margin-bottom: -1.5px; transition: all 0.15s; white-space: nowrap; text-decoration: none; }
+.tab:hover  { color: var(--navy); }
+.tab.active { color: var(--navy); border-bottom-color: var(--navy); }
+
+/* Table card */
+.table-card { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+.table-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+.table-title { font-size: 14px; font-weight: 500; }
+.table-count { font-size: 12px; color: var(--muted); }
+.view-all-link { font-size: 12px; color: var(--sky); text-decoration: none; }
+.view-all-link:hover { text-decoration: underline; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { text-align: left; padding: 10px 20px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); font-weight: 500; background: var(--off-white); border-bottom: 1px solid var(--border); }
+tbody tr { border-bottom: 1px solid rgba(200,217,238,0.4); transition: background 0.1s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--off-white); }
+td { padding: 12px 20px; vertical-align: middle; }
+.empty-state { padding: 32px; text-align: center; color: var(--muted); font-size: 13px; }
+
+/* Badges */
+.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+.badge-paid    { background: #E3F7EF; color: #1B7A54; }
+.badge-pending { background: #FFF8DB; color: #7A5A00; }
+.badge-overdue { background: #FFF0F0; color: #B03030; }
+.svc-badge     { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; background: var(--sky-pale); color: var(--navy); }
+.method-badge  { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; background: #EDE7FE; color: #5B21B6; }
+
+/* Action buttons */
+.action-btn     { padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); background: white; font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--navy); cursor: pointer; font-weight: 500; transition: all 0.1s; text-decoration: none; }
+.action-btn:hover { background: var(--sky-pale); border-color: var(--sky); }
+.action-btn.pay { background: #E3F7EF; color: #1B7A54; border-color: #9FE1CB; }
+.action-btn.pay:hover { background: #c6f0df; }
+.action-btn.del { color: #B03030; border-color: #f5c5c5; }
+.action-btn.del:hover { background: #FFF0F0; }
+
+/* Activity rows (summary page) */
+.activity-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border-bottom: 1px solid rgba(200,217,238,0.4); }
+.activity-row:last-child { border-bottom: none; }
+.activity-name { font-size: 13px; font-weight: 500; }
+.activity-sub  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.activity-amount { font-size: 14px; font-weight: 600; color: var(--text); }
+
+/* Form card (create bill / payment form) */
+.form-card  { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 24px 28px; margin-bottom: 20px; }
+.form-title { font-size: 15px; font-weight: 600; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.form-group { display: flex; flex-direction: column; margin-bottom: 16px; }
+.form-label { font-size: 13px; font-weight: 500; margin-bottom: 5px; color: var(--text); }
+.form-input { border: 1.5px solid var(--border); border-radius: 8px; padding: 9px 12px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text); outline: none; transition: border-color 0.15s; background: white; }
+.form-input:focus { border-color: var(--sky); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.btn-group  { display: flex; gap: 10px; margin-top: 8px; }
+.btn-primary { padding: 9px 22px; background: var(--navy); color: white; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.15s; }
+.btn-primary:hover { background: var(--navy-light); }
+.btn-cancel { padding: 9px 22px; background: white; color: var(--muted); border: 1px solid var(--border); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none; }
+.btn-cancel:hover { background: var(--off-white); }
+
+/* Back button */
+.back-btn { display: flex; align-items: center; gap: 6px; padding: 7px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; color: var(--muted); text-decoration: none; transition: all 0.15s; }
+.back-btn:hover { background: var(--off-white); color: var(--navy); }
+
+/* Add bill button */
+.add-btn { display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: var(--navy); color: white; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.15s; text-decoration: none; }
+.add-btn:hover { background: var(--navy-light); }

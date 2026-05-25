@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Bill extends Model
 {
     protected $fillable = [
+        'patient_id',
         'patient_name',
         'service_type',
         'total_amount',
@@ -29,5 +30,10 @@ class Bill extends Model
     public function getRemainingBalanceAttribute(): float
     {
         return max(0, (float) $this->total_amount - $this->amount_paid);
+    }
+
+    public function patient()
+    {
+    return $this->belongsTo(\App\Models\Patient::class);
     }
 }

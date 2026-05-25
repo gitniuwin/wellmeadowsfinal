@@ -114,6 +114,16 @@
       <div class="stat-value">{{ $totalTreatments ?? 0 }}</div>
       <div class="stat-label">Total Treatments</div>
     </div>
+    <div class="stat-card" style="background:var(--navy-light);">
+      <div class="stat-value">{{ $totalTreatments ?? 0 }}</div>
+      <div class="stat-label">Total Treatments</div>
+    </div>
+  </div>
+
+  {{-- TABS --}}
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('appointments', this)">Appointments</button>
+    <button class="tab-btn" onclick="switchTab('treatments', this)">Treatment Records</button>
   </div>
 
   {{-- TABS --}}
@@ -327,6 +337,7 @@
     </form>
   </div>
 </div>
+
 @endsection
 
 @push('scripts')

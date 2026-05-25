@@ -326,6 +326,7 @@
     </form>
   </div>
 </div>
+
 @endsection
 
 @push('scripts')
@@ -351,7 +352,10 @@
   document.getElementById('closeApptModal').onclick = () => document.getElementById('addApptModal').classList.remove('open');
   document.getElementById('cancelApptModal').onclick = () => document.getElementById('addApptModal').classList.remove('open');
 
-  document.getElementById('openTreatBtn').onclick = () => { document.getElementById('addTreatmentModal').classList.add('open'); switchTab('treatments', document.querySelectorAll('.tab-btn')[1]); };
+  document.getElementById('openTreatBtn').onclick = () => {
+    document.getElementById('addTreatmentModal').classList.add('open');
+    switchTab('treatments', document.querySelectorAll('.tab-btn')[1]);
+  };
   document.getElementById('closeTreatModal').onclick = () => document.getElementById('addTreatmentModal').classList.remove('open');
   document.getElementById('cancelTreatModal').onclick = () => document.getElementById('addTreatmentModal').classList.remove('open');
 

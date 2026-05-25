@@ -1,11 +1,14 @@
 @extends('layouts.app')
 
 @section('header-actions')
-<button onclick="document.getElementById('addTreatmentModal').classList.remove('hidden')"
-    class="flex items-center gap-2 bg-navy-dark text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-navy-light transition-colors shadow-sm">
-    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-    </svg>
+<style>
+  .add-btn { display:flex; align-items:center; gap:6px; padding:8px 16px; background:var(--navy); color:white; border:none; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; cursor:pointer; transition:background 0.15s; }
+  .add-btn:hover { opacity:0.9; }
+  .add-btn svg { width:14px; height:14px; }
+  :root { --navy:#1B2D5B; --navy-dark:#111e3f; --sky:#5B9BD5; }
+</style>
+<button class="add-btn" onclick="document.getElementById('addTreatmentModal').classList.remove('hidden')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     Record Treatment
 </button>
 @endsection
@@ -68,14 +71,14 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                                 </svg>
                             </div>
-                            <p class="font-medium text-navy-dark">{{ $treatment->patient->name }}</p>
+                            <p class="font-medium text-navy-dark">{{ $treatment->patient->full_name }}</p>
                         </div>
                     </td>
                     <td class="px-6 py-4 text-gray-600">{{ $treatment->diagnosis }}</td>
                     <td class="px-6 py-4">
                         <span class="px-2.5 py-1 rounded-lg bg-sky-pale text-navy text-xs font-medium">{{ $treatment->procedure }}</span>
                     </td>
-                    <td class="px-6 py-4 text-gray-600">{{ $treatment->doctor->name }}</td>
+                    <td class="px-6 py-4 text-gray-600">{{ $treatment->doctor->full_name }}</td>
                     <td class="px-6 py-4 text-gray-500 text-xs">{{ \Carbon\Carbon::parse($treatment->treatment_date)->format('M d, Y') }}</td>
                     <td class="px-6 py-4">
                         <div class="flex gap-2">

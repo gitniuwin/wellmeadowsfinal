@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@section('page-title', 'Appointments')
 @section('page-title', 'Appointment & Treatment')
 
 @section('topbar-action')
@@ -6,10 +7,10 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     New Appointment
   </button>
-  <button class="add-btn" id="openTreatBtn" style="background:var(--sky); margin-left:8px;">
+  <a href="{{ route('treatments.create') }}" class="add-btn" style="background:var(--sky); margin-left:8px; text-decoration:none;">
     <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     Record Treatment
-  </button>
+  </a>
 @endsection
 
 @push('styles')

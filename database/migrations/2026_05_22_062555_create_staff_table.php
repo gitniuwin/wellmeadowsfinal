@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('first_name');
             $table->string('last_name');
-            $table->string('role');
+            $table->enum('role', ['medical director', 'charged nurse', 'personnel'])->default('personnel');
             $table->string('department')->nullable();
             $table->string('ward')->nullable();
             $table->string('shift')->nullable();
@@ -27,3 +27,4 @@ return new class extends Migration
         Schema::dropIfExists('staff');
     }
 };
+

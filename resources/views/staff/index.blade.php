@@ -368,7 +368,6 @@
     </div>
 
   </div>{{-- end .content --}}
-</main>
 
 {{-- ===== MODAL: ADD STAFF ===== --}}
 <div class="modal-overlay" id="modal-add">
@@ -565,7 +564,6 @@
       </div>
     </form>
   </div>
-</div>
 </div>
 @endsection
 

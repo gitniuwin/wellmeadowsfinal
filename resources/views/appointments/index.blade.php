@@ -1,23 +1,16 @@
 @extends('layouts.app')
-<<<<<<< HEAD
-@section('page-title', 'Appointments')
-=======
->>>>>>> 44bce9d8edd4577e522ec33c9de839160b80dc14
+
 @section('page-title', 'Appointment & Treatment')
 
 @section('topbar-action')
-  <button class="add-btn" id="openApptBtn">
+  <button class="add-btn" id="openApptBtn" type="button">
     <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     New Appointment
   </button>
-<<<<<<< HEAD
-  <a href="{{ route('treatments.create') }}" class="add-btn" style="background:var(--sky); margin-left:8px; text-decoration:none;">
-=======
-  <button class="add-btn" id="openTreatBtn" style="background:var(--sky); margin-left:8px;">
->>>>>>> 44bce9d8edd4577e522ec33c9de839160b80dc14
+  <button class="add-btn" id="openTreatBtn" type="button" style="background:var(--sky); margin-left:8px;">
     <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     Record Treatment
-  </a>
+  </button>
 @endsection
 
 @push('styles')
@@ -70,12 +63,9 @@
   .actions-cell { display:flex; gap:6px; align-items:center; }
   .empty-state { text-align:center; padding:60px 20px; color:var(--muted); }
   .empty-state svg { width:48px; height:48px; stroke:var(--border); fill:none; margin:0 auto 12px; display:block; }
-  .alert { padding:12px 16px; border-radius:8px; margin-bottom:20px; font-size:13px; }
-  .alert-success { background:#DFFBEF; color:#1a7a50; border:1px solid #b2ecd4; }
-  .alert-error { background:#fdf0f0; color:#a03030; border:1px solid #f5c0c0; }
   .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:200; align-items:center; justify-content:center; }
   .modal-overlay.open { display:flex; }
-  .modal { background:white; border-radius:16px; padding:28px; width:100%; max-width:520px; max-height:90vh; overflow-y:auto; }
+  .modal { background:white; border-radius:16px; padding:28px; width:100%; max-width:560px; max-height:90vh; overflow-y:auto; }
   .modal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
   .modal-title { font-size:18px; font-weight:700; color:var(--navy); }
   .modal-close { width:30px; height:30px; border-radius:8px; background:var(--off-white); border:1px solid var(--border); cursor:pointer; display:flex; align-items:center; justify-content:center; }
@@ -95,15 +85,6 @@
 
 @section('content')
 <div class="page-wrap">
-
-  @if(session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
-  @endif
-  @if(session('error'))
-    <div class="alert alert-error">{{ session('error') }}</div>
-  @endif
-
-  {{-- STAT CARDS --}}
   <div class="stat-grid">
     <div class="stat-card">
       <div class="stat-value">{{ $totalAppointments ?? 0 }}</div>
@@ -123,20 +104,18 @@
     </div>
   </div>
 
-  {{-- TABS --}}
   <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('appointments', this)">Appointments</button>
-    <button class="tab-btn" onclick="switchTab('treatments', this)">Treatment Records</button>
+    <button class="tab-btn active" type="button" onclick="switchTab('appointments', this)">Appointments</button>
+    <button class="tab-btn" type="button" onclick="switchTab('treatments', this)">Treatment Records</button>
   </div>
 
-  {{-- APPOINTMENTS TAB --}}
   <div class="tab-content active" id="tab-appointments">
     <div class="table-card">
       <div class="table-header">
         <span class="table-title">Appointment Records</span>
         <div class="search-wrap">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input class="search-input" type="text" id="apptSearch" placeholder="Search patient…" oninput="filterTable('apptSearch','apptTable')">
+          <input class="search-input" type="text" id="apptSearch" placeholder="Search patient..." oninput="filterTable('apptSearch','apptTable')">
         </div>
       </div>
       <table id="apptTable">
@@ -148,8 +127,8 @@
         <tbody>
           @forelse($appointments ?? [] as $appt)
           <tr>
-            <td><div class="patient-name">{{ $appt->patient->first_name ?? '' }} {{ $appt->patient->last_name ?? '' }}</div></td>
-            <td>{{ $appt->doctor->first_name ?? '' }} {{ $appt->doctor->last_name ?? '' }}</td>
+            <td><div class="patient-name">{{ $appt->patient->full_name ?? '' }}</div></td>
+            <td>{{ $appt->doctor->full_name ?? '' }}</td>
             <td><span class="badge badge-procedure">{{ $appt->type }}</span></td>
             <td style="color:var(--muted);font-size:12px;">{{ \Carbon\Carbon::parse($appt->appointment_date)->format('M d, Y h:i A') }}</td>
             <td><span class="badge badge-{{ $appt->status }}">{{ ucfirst($appt->status) }}</span></td>
@@ -158,7 +137,8 @@
                 <a href="{{ route('appointments.show', $appt->id) }}" class="action-btn btn-view">View</a>
                 <a href="{{ route('appointments.edit', $appt->id) }}" class="action-btn btn-edit">Edit</a>
                 <form method="POST" action="{{ route('appointments.destroy', $appt->id) }}" style="display:inline" onsubmit="return confirm('Delete this appointment?')">
-                  @csrf @method('DELETE')
+                  @csrf
+                  @method('DELETE')
                   <button type="submit" class="action-btn btn-delete">Delete</button>
                 </form>
               </div>
@@ -177,14 +157,13 @@
     </div>
   </div>
 
-  {{-- TREATMENTS TAB --}}
   <div class="tab-content" id="tab-treatments">
     <div class="table-card">
       <div class="table-header">
         <span class="table-title">Treatment Records</span>
         <div class="search-wrap">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input class="search-input" type="text" id="treatSearch" placeholder="Search patient…" oninput="filterTable('treatSearch','treatTable')">
+          <input class="search-input" type="text" id="treatSearch" placeholder="Search patient..." oninput="filterTable('treatSearch','treatTable')">
         </div>
       </div>
       <table id="treatTable">
@@ -196,17 +175,18 @@
         <tbody>
           @forelse($treatments ?? [] as $treatment)
           <tr>
-            <td><div class="patient-name">{{ $treatment->patient->first_name ?? '' }} {{ $treatment->patient->last_name ?? '' }}</div></td>
+            <td><div class="patient-name">{{ $treatment->patient->full_name ?? '' }}</div></td>
             <td>{{ $treatment->diagnosis }}</td>
             <td><span class="badge badge-procedure">{{ $treatment->procedure }}</span></td>
-            <td>{{ $treatment->doctor->first_name ?? '' }} {{ $treatment->doctor->last_name ?? '' }}</td>
+            <td>{{ $treatment->doctor->full_name ?? '' }}</td>
             <td style="color:var(--muted);font-size:12px;">{{ \Carbon\Carbon::parse($treatment->treatment_date)->format('M d, Y') }}</td>
             <td>
               <div class="actions-cell">
                 <a href="{{ route('treatments.show', $treatment->id) }}" class="action-btn btn-view">View</a>
                 <a href="{{ route('treatments.edit', $treatment->id) }}" class="action-btn btn-edit">Edit</a>
                 <form method="POST" action="{{ route('treatments.destroy', $treatment->id) }}" style="display:inline" onsubmit="return confirm('Delete this treatment record?')">
-                  @csrf @method('DELETE')
+                  @csrf
+                  @method('DELETE')
                   <button type="submit" class="action-btn btn-delete">Delete</button>
                 </form>
               </div>
@@ -224,15 +204,13 @@
       </table>
     </div>
   </div>
-
 </div>
 
-{{-- ADD APPOINTMENT MODAL --}}
 <div class="modal-overlay" id="addApptModal">
   <div class="modal">
     <div class="modal-header">
       <div class="modal-title">New Appointment</div>
-      <button class="modal-close" id="closeApptModal"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <button class="modal-close" id="closeApptModal" type="button"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <form method="POST" action="{{ route('appointments.store') }}">
       @csrf
@@ -240,25 +218,25 @@
         <div class="form-group">
           <label>Patient</label>
           <select name="patient_id" required>
-            <option value="">Select patient…</option>
+            <option value="">Select patient...</option>
             @foreach($patients ?? [] as $patient)
-              <option value="{{ $patient->id }}">{{ $patient->first_name }} {{ $patient->last_name }}</option>
+              <option value="{{ $patient->id }}">{{ $patient->full_name }}</option>
             @endforeach
           </select>
         </div>
         <div class="form-group">
           <label>Doctor</label>
           <select name="doctor_id" required>
-            <option value="">Select doctor…</option>
+            <option value="">Select doctor...</option>
             @foreach($doctors ?? [] as $doctor)
-              <option value="{{ $doctor->id }}">{{ $doctor->first_name }} {{ $doctor->last_name }}</option>
+              <option value="{{ $doctor->id }}">{{ $doctor->full_name }}</option>
             @endforeach
           </select>
         </div>
         <div class="form-group">
           <label>Type</label>
           <select name="type" required>
-            <option value="">Select type…</option>
+            <option value="">Select type...</option>
             <option value="Consultation">Consultation</option>
             <option value="Follow-up">Follow-up</option>
             <option value="Emergency">Emergency</option>
@@ -271,7 +249,7 @@
         </div>
         <div class="form-group full">
           <label>Notes</label>
-          <textarea name="notes" rows="3" placeholder="Appointment notes…"></textarea>
+          <textarea name="notes" rows="3" placeholder="Appointment notes..."></textarea>
         </div>
       </div>
       <div class="form-actions">
@@ -282,12 +260,11 @@
   </div>
 </div>
 
-{{-- ADD TREATMENT MODAL --}}
 <div class="modal-overlay" id="addTreatmentModal">
   <div class="modal">
     <div class="modal-header">
       <div class="modal-title">Record Treatment</div>
-      <button class="modal-close" id="closeTreatModal"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <button class="modal-close" id="closeTreatModal" type="button"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <form method="POST" action="{{ route('treatments.store') }}">
       @csrf
@@ -295,28 +272,28 @@
         <div class="form-group">
           <label>Patient</label>
           <select name="patient_id" required>
-            <option value="">Select patient…</option>
+            <option value="">Select patient...</option>
             @foreach($patients ?? [] as $patient)
-              <option value="{{ $patient->id }}">{{ $patient->first_name }} {{ $patient->last_name }}</option>
+              <option value="{{ $patient->id }}">{{ $patient->full_name }}</option>
             @endforeach
           </select>
         </div>
         <div class="form-group">
           <label>Doctor</label>
           <select name="doctor_id" required>
-            <option value="">Select doctor…</option>
+            <option value="">Select doctor...</option>
             @foreach($doctors ?? [] as $doctor)
-              <option value="{{ $doctor->id }}">{{ $doctor->first_name }} {{ $doctor->last_name }}</option>
+              <option value="{{ $doctor->id }}">{{ $doctor->full_name }}</option>
             @endforeach
           </select>
         </div>
         <div class="form-group full">
           <label>Diagnosis</label>
-          <input type="text" name="diagnosis" required placeholder="e.g. Hypertension Stage 2">
+          <input type="text" name="diagnosis" required placeholder="Diagnosis">
         </div>
         <div class="form-group">
           <label>Procedure</label>
-          <input type="text" name="procedure" required placeholder="e.g. Blood pressure monitoring">
+          <input type="text" name="procedure" required placeholder="Procedure">
         </div>
         <div class="form-group">
           <label>Treatment Date</label>
@@ -324,7 +301,7 @@
         </div>
         <div class="form-group full">
           <label>Notes</label>
-          <textarea name="notes" rows="3" placeholder="Treatment notes…"></textarea>
+          <textarea name="notes" rows="3" placeholder="Treatment notes..."></textarea>
         </div>
       </div>
       <div class="form-actions">
@@ -334,46 +311,42 @@
     </form>
   </div>
 </div>
-
 @endsection
 
 @push('scripts')
 <script>
-  // Tab switching
-  function switchTab(tab, btn) {
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('tab-' + tab).classList.add('active');
-    btn.classList.add('active');
+  function switchTab(tabName, button) {
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(tab => tab.classList.remove('active'));
+
+    document.getElementById(`tab-${tabName}`)?.classList.add('active');
+    button?.classList.add('active');
   }
 
-  // Search filter
   function filterTable(inputId, tableId) {
-    const q = document.getElementById(inputId).value.toLowerCase();
-    document.querySelectorAll('#' + tableId + ' tbody tr').forEach(row => {
-      row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+    const searchValue = document.getElementById(inputId)?.value.toLowerCase() || '';
+    const table = document.getElementById(tableId);
+
+    table?.querySelectorAll('tbody tr').forEach(row => {
+      row.style.display = row.textContent.toLowerCase().includes(searchValue) ? '' : 'none';
     });
   }
 
-  // Modal controls
-  document.getElementById('openApptBtn').onclick = () => document.getElementById('addApptModal').classList.add('open');
-  document.getElementById('closeApptModal').onclick = () => document.getElementById('addApptModal').classList.remove('open');
-  document.getElementById('cancelApptModal').onclick = () => document.getElementById('addApptModal').classList.remove('open');
+  document.addEventListener('DOMContentLoaded', () => {
+    const appointmentModal = document.getElementById('addApptModal');
+    const treatmentModal = document.getElementById('addTreatmentModal');
+    const treatmentTabButton = document.querySelectorAll('.tab-btn')[1];
 
-<<<<<<< HEAD
-  document.getElementById('openTreatBtn').onclick = () => { document.getElementById('addTreatmentModal').classList.add('open'); switchTab('treatments', document.querySelectorAll('.tab-btn')[1]); };
-=======
-  document.getElementById('openTreatBtn').onclick = () => {
-    document.getElementById('addTreatmentModal').classList.add('open');
-    switchTab('treatments', document.querySelectorAll('.tab-btn')[1]);
-  };
->>>>>>> 44bce9d8edd4577e522ec33c9de839160b80dc14
-  document.getElementById('closeTreatModal').onclick = () => document.getElementById('addTreatmentModal').classList.remove('open');
-  document.getElementById('cancelTreatModal').onclick = () => document.getElementById('addTreatmentModal').classList.remove('open');
+    document.getElementById('openApptBtn')?.addEventListener('click', () => appointmentModal?.classList.add('open'));
+    document.getElementById('closeApptModal')?.addEventListener('click', () => appointmentModal?.classList.remove('open'));
+    document.getElementById('cancelApptModal')?.addEventListener('click', () => appointmentModal?.classList.remove('open'));
 
-  // Close on backdrop click
-  document.querySelectorAll('.modal-overlay').forEach(m => {
-    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+    document.getElementById('openTreatBtn')?.addEventListener('click', () => {
+      treatmentModal?.classList.add('open');
+      switchTab('treatments', treatmentTabButton);
+    });
+    document.getElementById('closeTreatModal')?.addEventListener('click', () => treatmentModal?.classList.remove('open'));
+    document.getElementById('cancelTreatModal')?.addEventListener('click', () => treatmentModal?.classList.remove('open'));
   });
 </script>
 @endpush

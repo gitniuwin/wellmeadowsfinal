@@ -168,18 +168,69 @@ class BillingController extends Controller
     }
 
     public function reports()
-    {
-        $stats = $this->getStats();
+{
+    $stats = $this->getStats();
 
-        $byService = Bill::selectRaw(
-            'service_type, COUNT(*) as count, SUM(total_amount) as total'
-        )->groupBy('service_type')->get();
+    // ── Existing: revenue by service type ──
+    $byService = Bill::selectRaw(
+        'service_type, COUNT(*) as count, SUM(total_amount) as total'
+    )->groupBy('service_type')->get();
 
-        $outstanding = Bill::with('payments')
-                           ->whereIn('status', ['pending', 'overdue'])
-                           ->latest()
-                           ->get();
+    // ── NEW: Monthly revenue trend (last 6 months) ──
+    $monthlyRevenue = Bill::latest()
+        ->get()
+        ->groupBy(fn($bill) => $bill->created_at->format('Y-m'))
+        ->map(function ($bills) {
+            $month = $bills->first()->created_at;
+            return (object) [
+                'month'     => $month->format('M Y'),
+                'total'     => $bills->sum('total_amount'),
+                'collected' => $bills->where('status', 'paid')->sum('total_amount'),
+            ];
+        })
+        ->take(6)
+        ->values();
 
-        return view('billing.reports', compact('stats', 'byService', 'outstanding'));
-    }
+    // ── NEW: Patient records report (Module 1 connection) ──
+    $totalPatients   = \App\Models\Patient::count();
+    $admittedNow     = \App\Models\Patient::where('is_admitted', true)->count();
+    $outpatients     = \App\Models\Patient::where('is_admitted', false)->count();
+    $patientsWithBills = \App\Models\Patient::has('bills')->count();
+
+    // ── NEW: Occupancy rate report (Module 3 connection) ──
+    $wards         = \App\Models\Ward::with('beds')->where('is_active', true)->get();
+    $totalBeds     = \App\Models\Bed::count();
+    $occupiedBeds  = \App\Models\Bed::where('status', 'occupied')->count();
+    $vacantBeds    = \App\Models\Bed::where('status', 'vacant')->count();
+    $occupancyRate = $totalBeds > 0 ? round(($occupiedBeds / $totalBeds) * 100) : 0;
+
+    // ── NEW: Appointment & treatment summary (Module 4 connection) ──
+    $totalAppointments = \App\Models\Appointment::count();
+    $completedAppts    = \App\Models\Appointment::where('status', 'completed')->count();
+    $totalTreatments   = \App\Models\Treatment::count();
+
+    // ── NEW: Top patients by billing amount ──
+    $topPatients = \App\Models\Bill::selectRaw('patient_name, patient_id, SUM(total_amount) as total_billed, COUNT(*) as bill_count')
+        ->groupBy('patient_name', 'patient_id')
+        ->orderByDesc('total_billed')
+        ->take(5)
+        ->get();
+
+    // ── Existing: outstanding bills ──
+    $outstanding = Bill::with('payments')
+        ->whereIn('status', ['pending', 'overdue'])
+        ->latest()
+        ->get();
+
+    return view('billing.reports', compact(
+        'stats',
+        'byService',
+        'monthlyRevenue',
+        'totalPatients', 'admittedNow', 'outpatients', 'patientsWithBills',
+        'wards', 'totalBeds', 'occupiedBeds', 'vacantBeds', 'occupancyRate',
+        'totalAppointments', 'completedAppts', 'totalTreatments',
+        'topPatients',
+        'outstanding'
+    ));
+}
 }

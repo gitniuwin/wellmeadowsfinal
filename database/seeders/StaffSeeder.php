@@ -14,7 +14,7 @@ class StaffSeeder extends Seeder
         $staffData = [
             [
                 'first_name' => 'Maria', 'last_name' => 'Santos',
-                'role' => 'Doctor', 'department' => 'Cardiology',
+                'role' => 'Medical Director', 'department' => 'Cardiology',
                 'ward' => 'Ward A', 'shift' => 'AM',
                 'email' => 'maria.santos@wellmeadows.com', 'status' => 'Active',
                 'schedule' => ['mon'=>true,'tue'=>true,'wed'=>true,'thu'=>true,'fri'=>true,'sat'=>false,'sun'=>false],

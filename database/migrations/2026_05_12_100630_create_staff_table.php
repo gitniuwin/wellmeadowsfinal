@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('first_name');
             $table->string('last_name');
-            $table->enum('role', ['Medical Director', 'Charge Nurse', 'Staff'])->default('Staff');
+            $table->string('role')->default('Staff');
             $table->string('department')->nullable();
             $table->string('ward')->nullable();
             $table->string('shift')->nullable();

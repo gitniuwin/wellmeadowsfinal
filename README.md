@@ -2,7 +2,7 @@
 
 ## Project Description
 
-Short explanation of what the system does.
+Si Owen na bahala sir
 
 ---
 
@@ -30,14 +30,14 @@ Short explanation of what the system does.
 
 ## Repository Link
 
-git@github.com:gitniuwin/wellmeadowsfinal.git
+(https://github.com/gitniuwin/wellmeadowsfinal.git)
 
 ---
 
 ## Setup Instructions
 
 ```bash
-git clone <repo>
+git clone https://github.com/gitniuwin/wellmeadowsfinal.git
 
 composer install
 npm install
@@ -112,8 +112,11 @@ Railway PostgreSQL
 
 | Module | Assigned Developer |
 |---|---|
-| | |
-| | |
+|MODULE 1 | SALINAS, SHERLY |
+|MODULE 2 | TAN, SHADROCK|
+|MODULE 3 | BUHIAN, OWEN|
+|MODULE 4 | DE LA VICTORIA, CHARIE MAE|
+|MODULE 5 | TURA, DOROTHY BLAINE|
 
 ---
 
@@ -122,7 +125,7 @@ Railway PostgreSQL
 ### Live URL
 
 ```txt
-https://your-project-url.com
+https://wellmeadowsfinal-production.up.railway.app/login
 ```
 
 ### Hosting Platform
@@ -136,7 +139,26 @@ Railway
 ## Screenshots
 
 Required screenshots:
-- Login Page
-- Dashboard
-- CRUD Module
-- PostgreSQL Database Tables
+
+Login Page
+![LOGIN PAGE](screenshots/login.png)
+
+Dashboard
+![DASHBOARD](screenshots/dashboard.png)
+
+CRUD Module
+
+- CREATE
+![CREATE](screenshots/create.png)
+
+- READ
+![READ](screenshots/read.png)
+
+- UPDATE
+![UPDATE](screenshots/update.png)
+
+- DELETE
+![DELETE](screenshots/delete.png)
+
+PostgreSQL Database Tables
+![postgre](screenshots/postgre.png)
